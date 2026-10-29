@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Match Pairs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #58cc02;
+    --green-dark: #58a700;
+    --green-light: #d7ffb8;
+    --blue: #1cb0f6;
+    --blue-light: #ddf4ff;
+    --blue-dark: #1899d6;
+    --red: #ff4b4b;
+    --red-light: #ffdfe0;
+    --gold: #ffc800;
+    --text: #3c3c3c;
+    --muted: #777;
+    --border: #e5e5e5;
+    --bg: #fff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Nunito", system-ui, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-tap-highlight-color: transparent;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 640px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 24px 16px 8px;
+  }
+  .close {
+    border: 0; background: none; cursor: pointer;
+    font-size: 28px; line-height: 1; color: #afafaf; padding: 0;
+  }
+  .progress {
+    flex: 1; height: 16px; border-radius: 8px; background: var(--border); overflow: hidden;
+  }
+  .progress > div {
+    height: 100%; width: 0; background: var(--green); border-radius: 8px;
+    transition: width .35s ease;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,.08), inset 0 4px 0 rgba(255,255,255,.3);
+  }
+  .combo {
+    font-weight: 900; color: var(--gold); min-width: 64px; text-align: right;
+    opacity: 0; transition: opacity .2s;
+  }
+  .combo.show { opacity: 1; }
+
+  main {
+    flex: 1;
+    max-width: 640px; width: 100%;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+  h1 { font-size: 28px; font-weight: 900; margin: 8px 0 28px; }
+  .board {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px;
+  }
+  .col { display: flex; flex-direction: column; gap: 12px; }
+
+  .tile {
+    font: inherit; font-size: 18px; font-weight: 800; color: var(--text);
+    background: #fff;
+    border: 2px solid var(--border);
+    border-bottom-width: 4px;
+    border-radius: 14px;
+    padding: 14px 12px;
+    min-height: 60px;
+    cursor: pointer;
+    transition: transform .08s, background .15s, border-color .15s, color .15s, opacity .3s;
+    user-select: none;
+  }
+  .tile:hover:not(:disabled) { background: #f7f7f7; }
+  .tile:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; margin-bottom: 2px; }
+  .tile.selected { background: var(--blue-light); border-color: var(--blue); color: var(--blue-dark); }
+  .tile.correct { background: var(--green-light); border-color: var(--green); color: var(--green-dark); animation: pop .3s; }
+  .tile.wrong { background: var(--red-light); border-color: var(--red); color: var(--red); animation: shake .35s; }
+  .tile.done { opacity: .35; cursor: default; background: #fff; color: #afafaf; border-color: var(--border); }
+  .tile .num {
+    display: inline-block; font-size: 13px; color: #afafaf; border: 2px solid var(--border);
+    border-radius: 8px; width: 24px; height: 24px; line-height: 20px; margin-right: 8px; vertical-align: 2px;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60% { transform: translateX(-6px); }
+    40%,80% { transform: translateX(6px); }
+  }
+  @keyframes pop { 50% { transform: scale(1.06); } }
+
+  footer {
+    border-top: 2px solid var(--border);
+    padding: 20px 16px;
+  }
+  footer .inner {
+    max-width: 640px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    color: var(--muted); font-weight: 800;
+  }
+  .btn {
+    font: inherit; font-weight: 800; font-size: 16px; letter-spacing: .5px; text-transform: uppercase;
+    border: 0; border-radius: 14px; padding: 14px 28px; cursor: pointer;
+    color: #fff; background: var(--green); box-shadow: 0 4px 0 var(--green-dark);
+  }
+  .btn:active { transform: translateY(4px); box-shadow: none; }
+  .btn.secondary { background: #fff; color: var(--blue); border: 2px solid var(--border); box-shadow: 0 4px 0 var(--border); }
+
+  /* Results screen */
+  .results { text-align: center; padding-top: 32px; display: none; }
+  .results.show { display: block; }
+  .results h2 { font-size: 32px; font-weight: 900; color: var(--gold); margin: 12px 0 28px; }
+  .trophy { font-size: 72px; }
+  .stats { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .stat {
+    width: 140px; border-radius: 16px; border: 2px solid; overflow: hidden; font-weight: 900;
+  }
+  .stat .label { color: #fff; font-size: 13px; text-transform: uppercase; padding: 6px; }
+  .stat .value { font-size: 22px; padding: 14px 6px; background: #fff; }
+  .stat.xp { border-color: var(--gold); } .stat.xp .label { background: var(--gold); } .stat.xp .value { color: var(--gold); }
+  .stat.time { border-color: var(--blue); } .stat.time .label { background: var(--blue); } .stat.time .value { color: var(--blue); }
+  .stat.acc { border-color: var(--green); } .stat.acc .label { background: var(--green); } .stat.acc .value { color: var(--green); }
+
+  .lang { display: flex; gap: 8px; }
+  .lang button {
+    font: inherit; font-weight: 800; font-size: 14px; cursor: pointer;
+    border: 2px solid var(--border); background: #fff; color: var(--muted);
+    border-radius: 12px; padding: 6px 12px;
+  }
+  .lang button.active { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+  @media (max-width: 480px) {
+    .tile { font-size: 16px; padding: 12px 8px; }
+    .tile .num { display: none; }
+    h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <button class="close" id="restart" title="Restart">×</button>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="combo" id="combo"></div>
+  </header>
+
+  <main>
+    <section id="game">
+      <h1>Tap the matching pairs</h1>
+      <div class="board">
+        <div class="col" id="left"></div>
+        <div class="col" id="right"></div>
+      </div>
+    </section>
+
+    <section class="results" id="results">
+      <div class="trophy">🏆</div>
+      <h2>Lesson complete!</h2>
+      <div class="stats">
+        <div class="stat xp"><div class="label">Total XP</div><div class="value" id="xp"></div></div>
+        <div class="stat time"><div class="label">Time</div><div class="value" id="time"></div></div>
+        <div class="stat acc"><div class="label">Accuracy</div><div class="value" id="acc"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="inner">
+      <div class="lang" id="lang"></div>
+      <button class="btn" id="action" hidden>Continue</button>
+    </div>
+  </footer>
+
+<script>
+  const DECKS = {
+    Spanish: [
+      ["el perro", "the dog"], ["el gato", "the cat"], ["la manzana", "the apple"],
+      ["el agua", "the water"], ["la casa", "the house"], ["el libro", "the book"],
+      ["la leche", "the milk"], ["el pan", "the bread"], ["la mujer", "the woman"],
+      ["el niño", "the boy"], ["gracias", "thank you"], ["hola", "hello"],
+      ["rojo", "red"], ["grande", "big"], ["la escuela", "the school"],
+    ],
+    French: [
+      ["le chien", "the dog"], ["le chat", "the cat"], ["la pomme", "the apple"],
+      ["l'eau", "the water"], ["la maison", "the house"], ["le livre", "the book"],
+      ["le lait", "the milk"], ["le pain", "the bread"], ["la femme", "the woman"],
+      ["le garçon", "the boy"], ["merci", "thank you"], ["bonjour", "hello"],
+      ["rouge", "red"], ["grand", "big"], ["l'école", "the school"],
+    ],
+    German: [
+      ["der Hund", "the dog"], ["die Katze", "the cat"], ["der Apfel", "the apple"],
+      ["das Wasser", "the water"], ["das Haus", "the house"], ["das Buch", "the book"],
+      ["die Milch", "the milk"], ["das Brot", "the bread"], ["die Frau", "the woman"],
+      ["der Junge", "the boy"], ["danke", "thank you"], ["hallo", "hello"],
+      ["rot", "red"], ["groß", "big"], ["die Schule", "the school"],
+    ],
+  };
+  const PAIRS_PER_ROUND = 5;
+  const ROUNDS = 3;
+
+  const $ = id => document.getElementById(id);
+  const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+  let lang = "Spanish";
+  let rounds, roundIdx, matched, selected, attempts, mistakes, combo, bestCombo, startTime, locked;
+
+  // --- Sound effects (Web Audio, no files needed) ---
+  let audio;
+  function beep(freqs, dur = 0.09, type = "sine") {
+    try {
+      audio ||= new (window.AudioContext || window.webkitAudioContext)();
+      freqs.forEach((f, i) => {
+        const o = audio.createOscillator(), g = audio.createGain();
+        const t = audio.currentTime + i * dur;
+        o.type = type; o.frequency.value = f;
+        g.gain.setValueAtTime(0.15, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + dur * 1.6);
+        o.connect(g).connect(audio.destination);
+        o.start(t); o.stop(t + dur * 1.6);
+      });
+    } catch {}
+  }
+  const sfx = {
+    correct: () => beep([660, 880]),
+    wrong: () => beep([200, 150], 0.12, "square"),
+    finish: () => beep([523, 659, 784, 1047], 0.12),
+  };
+
+  function renderLangPicker() {
+    $("lang").innerHTML = "";
+    Object.keys(DECKS).forEach(name => {
+      const b = document.createElement("button");
+      b.textContent = name;
+      b.className = name === lang ? "active" : "";
+      b.onclick = () => { lang = name; start(); };
+      $("lang").append(b);
+    });
+  }
+
+  function start() {
+    const words = shuffle(DECKS[lang]).slice(0, PAIRS_PER_ROUND * ROUNDS);
+    rounds = Array.from({ length: ROUNDS }, (_, i) => words.slice(i * PAIRS_PER_ROUND, (i + 1) * PAIRS_PER_ROUND));
+    roundIdx = 0; attempts = 0; mistakes = 0; combo = 0; bestCombo = 0;
+    startTime = Date.now();
+    $("game").hidden = false;
+    $("results").classList.remove("show");
+    $("action").hidden = true;
+    $("lang").hidden = false;
+    renderLangPicker();
+    showCombo();
+    renderRound();
+  }
+
+  function renderRound() {
+    matched = 0; selected = null; locked = false;
+    const pairs = rounds[roundIdx].map((p, id) => ({ id, target: p[0], native: p[1] }));
+    buildColumn($("left"), shuffle(pairs), "target", 1);
+    buildColumn($("right"), shuffle(pairs), "native", PAIRS_PER_ROUND + 1);
+    updateProgress();
+  }
+
+  function buildColumn(el, items, key, firstNum) {
+    el.innerHTML = "";
+    items.forEach((p, i) => {
+      const b = document.createElement("button");
+      b.className = "tile";
+      b.dataset.id = p.id;
+      b.dataset.side = key;
+      b.dataset.key = String((firstNum + i) % 10);
+      b.innerHTML = `<span class="num">${(firstNum + i) % 10}</span>${p[key]}`;
+      b.onclick = () => pick(b);
+      el.append(b);
+    });
+  }
+
+  function pick(tile) {
+    if (locked || tile.disabled) return;
+    if (!selected) { select(tile); return; }
+    if (selected === tile) { tile.classList.remove("selected"); selected = null; return; }
+    if (selected.dataset.side === tile.dataset.side) { selected.classList.remove("selected"); select(tile); return; }
+
+    attempts++;
+    const a = selected, b = tile;
+    selected = null;
+    a.classList.remove("selected");
+
+    if (a.dataset.id === b.dataset.id) {
+      combo++; bestCombo = Math.max(bestCombo, combo);
+      sfx.correct();
+      [a, b].forEach(t => { t.classList.add("correct"); t.disabled = true; });
+      setTimeout(() => [a, b].forEach(t => { t.classList.remove("correct"); t.classList.add("done"); }), 450);
+      matched++;
+      updateProgress();
+      showCombo();
+      if (matched === PAIRS_PER_ROUND) setTimeout(nextRound, 600);
+    } else {
+      combo = 0; mistakes++;
+      sfx.wrong();
+      showCombo();
+      locked = true;
+      [a, b].forEach(t => t.classList.add("wrong"));
+      setTimeout(() => { [a, b].forEach(t => t.classList.remove("wrong")); locked = false; }, 500);
+    }
+  }
+
+  function select(tile) {
+    selected = tile;
+    tile.classList.add("selected");
+  }
+
+  function nextRound() {
+    roundIdx++;
+    if (roundIdx < ROUNDS) renderRound();
+    else finish();
+  }
+
+  function updateProgress() {
+    const done = roundIdx * PAIRS_PER_ROUND + matched;
+    $("bar").style.width = (done / (ROUNDS * PAIRS_PER_ROUND) * 100) + "%";
+  }
+
+  function showCombo() {
+    $("combo").textContent = `🔥 ${combo}`;
+    $("combo").classList.toggle("show", combo >= 3);
+  }
+
+  function finish() {
+    sfx.finish();
+    const secs = Math.round((Date.now() - startTime) / 1000);
+    const total = ROUNDS * PAIRS_PER_ROUND;
+    const acc = Math.round(total / attempts * 100);
+    $("xp").textContent = 10 + total + (acc === 100 ? 5 : 0) + Math.floor(bestCombo / 5) * 2;
+    $("time").textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
+    $("acc").textContent = acc + "%";
+    $("game").hidden = true;
+    $("results").classList.add("show");
+    $("lang").hidden = true;
+    $("action").hidden = false;
+  }
+
+  $("action").onclick = start;
+  $("restart").onclick = start;
+
+  // Keyboard: 1–5 pick left column, 6–0 pick right column
+  document.addEventListener("keydown", e => {
+    if ($("game").hidden) { if (e.key === "Enter") start(); return; }
+    const tile = document.querySelector(`.tile[data-key="${e.key}"]`);
+    if (tile) pick(tile);
+  });
+
+  start();
+</script>
+</body>
+</html>
