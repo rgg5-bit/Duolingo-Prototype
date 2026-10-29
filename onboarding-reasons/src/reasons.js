@@ -1,3 +1,5 @@
+import { isDestination, tripPhrase } from "./destinations.js";
+
 // Each reason has a short chip label, a solo speech-bubble line, and a
 // fragment used when several reasons are combined ("ready for X and Y").
 export const REASONS = [
@@ -77,10 +79,20 @@ export function getReason(id) {
 
 export function duoLine(selection) {
   const ids = selection?.ids ?? [];
+  const trips = selection?.trips ?? [];
   if (ids.length === 0) return DEFAULT_LINE;
-  if (ids.length === 1) return `Great! ${byId[ids[0]].line}`;
 
-  const parts = ids.slice(0, 2).map((id) => byId[id].fragment);
+  // Travel gets specific once the user has picked destinations on the map.
+  const lineFor = (id) =>
+    id === "travel" && trips.length
+      ? `Let's get you ready for your trip to ${tripPhrase(trips)}!`
+      : byId[id].line;
+  const fragmentFor = (id) =>
+    id === "travel" && trips.length ? `your trip to ${tripPhrase(trips)}` : byId[id].fragment;
+
+  if (ids.length === 1) return `Great! ${lineFor(ids[0])}`;
+
+  const parts = ids.slice(0, 2).map(fragmentFor);
   const tail = ids.length > 2 ? `, ${parts[1]}, and more` : ` and ${parts[1]}`;
   return `Great choices! Let's get you ready for ${parts[0]}${tail}!`;
 }
@@ -92,7 +104,8 @@ export function loadSelection() {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!parsed || !Array.isArray(parsed.ids)) return null;
     const ids = parsed.ids.filter((id) => byId[id]);
-    return ids.length ? { ids, other: String(parsed.other ?? "") } : null;
+    const trips = Array.isArray(parsed.trips) ? parsed.trips.filter(isDestination) : [];
+    return ids.length ? { ids, other: String(parsed.other ?? ""), trips } : null;
   } catch {
     return null;
   }

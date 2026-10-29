@@ -66,6 +66,33 @@ body {
 .animate-pop { animation: pop 380ms ease-out both; }
 .animate-hop { animation: hop 650ms ease-out both; }
 
+/* Travel map */
+.map-land,
+.map-chip,
+.map-pin {
+  cursor: pointer;
+}
+.map-land:hover {
+  filter: brightness(1.08);
+}
+.map-pin,
+.map-chip {
+  outline: none;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 120ms ease-out;
+}
+.map-pin:hover,
+.map-chip:hover {
+  transform: scale(1.12);
+}
+.pin-ring {
+  opacity: 0;
+}
+.map-pin:focus-visible .pin-ring {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-sheet-up,
   .animate-sheet-down,

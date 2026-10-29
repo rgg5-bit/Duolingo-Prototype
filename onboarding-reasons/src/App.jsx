@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { BackArrow, BookIcon, CompassIcon, DuoOwl, ReasonIcon } from "./Icons.jsx";
+import { getDestination, languagesFor } from "./destinations.js";
 import ReasonsSheet from "./ReasonsSheet.jsx";
 import { duoLine, getReason, loadSelection, saveSelection } from "./reasons.js";
 import { PRESSABLE } from "./styles.js";
@@ -144,6 +145,13 @@ export default function App() {
                     );
                   })}
                 </span>
+                {selection.trips?.length > 0 && (
+                  <span className="text-[13px] font-bold leading-snug text-fog">
+                    📍 {selection.trips.map((t) => getDestination(t).name).join(", ")}
+                    <br />
+                    🗣️ Travel lessons in {languagesFor(selection.trips).join(", ")}
+                  </span>
+                )}
                 <span className="text-[13px] font-extrabold uppercase tracking-wide text-grape">
                   Tap to edit
                 </span>

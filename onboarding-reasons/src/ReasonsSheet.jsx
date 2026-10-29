@@ -1,16 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { PRESSABLE } from "./styles.js";
 import { CheckIcon, CloseIcon } from "./Icons.jsx";
+import { getDestination } from "./destinations.js";
 import { REASONS } from "./reasons.js";
+import TravelMap from "./TravelMap.jsx";
 
 const CLOSE_MS = 200;
 
 export default function ReasonsSheet({ initial, onSave, onClose }) {
   const [ids, setIds] = useState(initial?.ids ?? []);
   const [other, setOther] = useState(initial?.other ?? "");
+  const [trips, setTrips] = useState(initial?.trips ?? []);
+  const [mapOpen, setMapOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef(null);
   const otherRef = useRef(null);
+  const mapOpenRef = useRef(false);
+  mapOpenRef.current = mapOpen;
 
   const canContinue = ids.length > 0;
 
@@ -28,7 +34,8 @@ export default function ReasonsSheet({ initial, onSave, onClose }) {
     panelRef.current?.focus();
 
     const onKey = (e) => {
-      if (e.key === "Escape") dismiss();
+      // The travel map handles its own Escape while it's open.
+      if (e.key === "Escape" && !mapOpenRef.current) dismiss();
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -40,6 +47,8 @@ export default function ReasonsSheet({ initial, onSave, onClose }) {
   }, []);
 
   function toggle(id) {
+    // Picking Travel jumps straight to the map so users can choose destinations.
+    if (id === "travel" && !ids.includes("travel")) setMapOpen(true);
     setIds((cur) => {
       const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
       if (id === "other" && next.includes("other")) {
@@ -54,7 +63,8 @@ export default function ReasonsSheet({ initial, onSave, onClose }) {
     // Keep the user's picks in the order they appear in the list.
     const ordered = REASONS.map((r) => r.id).filter((id) => ids.includes(id));
     const text = ordered.includes("other") ? other.trim() : "";
-    dismiss(() => onSave({ ids: ordered, other: text }));
+    const chosenTrips = ordered.includes("travel") ? trips : [];
+    dismiss(() => onSave({ ids: ordered, other: text, trips: chosenTrips }));
   }
 
   return (
@@ -132,6 +142,26 @@ export default function ReasonsSheet({ initial, onSave, onClose }) {
                   </span>
                 </button>
 
+                {r.id === "travel" && selected && (
+                  <button
+                    type="button"
+                    onClick={() => setMapOpen(true)}
+                    className="mt-2.5 flex w-full animate-pop items-center gap-3 rounded-2xl border-2 border-dashed border-sky-line px-4 py-3 text-left outline-none hover:bg-panel/50 focus-visible:ring-4 focus-visible:ring-sky/40"
+                  >
+                    <span className="text-[22px]" aria-hidden="true">
+                      🗺️
+                    </span>
+                    <span className="min-w-0 flex-1 text-[15px] font-extrabold leading-snug text-snow">
+                      {trips.length
+                        ? trips.map((t) => `${getDestination(t).emoji} ${getDestination(t).name}`).join(", ")
+                        : "Pick where you're going"}
+                    </span>
+                    <span className="shrink-0 text-[13px] font-extrabold uppercase tracking-wide text-sky">
+                      {trips.length ? "Change" : "Open map"}
+                    </span>
+                  </button>
+                )}
+
                 {r.id === "other" && selected && (
                   <div className="mt-2.5 animate-pop">
                     <label htmlFor="other-reason" className="sr-only">
@@ -182,6 +212,18 @@ export default function ReasonsSheet({ initial, onSave, onClose }) {
           )}
         </div>
       </div>
+
+      {/* Rendered outside the animated panel so `fixed` stays relative to the viewport. */}
+      {mapOpen && (
+        <TravelMap
+          initial={trips}
+          onDone={(next) => {
+            setTrips(next);
+            setMapOpen(false);
+          }}
+          onClose={() => setMapOpen(false)}
+        />
+      )}
     </div>
   );
 }
