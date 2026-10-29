@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
+
+  --color-ink: #131f24;          /* page background */
+  --color-panel: #202f36;        /* selected card fill */
+  --color-line: #37464f;         /* default borders */
+  --color-muted: #52656d;
+  --color-snow: #f1f7fb;         /* primary text */
+  --color-fog: #8fa3ad;          /* secondary text */
+  --color-sky: #49c0f8;          /* selected text / badge */
+  --color-sky-line: #3f85a7;     /* selected border */
+  --color-owl: #58cc02;
+  --color-owl-dark: #58a700;
+  --color-grape: #ce82ff;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ink);
+  color: var(--color-snow);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes sheet-down {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes pop {
+  0% { transform: scale(0.92); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes hop {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-10px); }
+  55% { transform: translateY(0); }
+  75% { transform: translateY(-4px); }
+}
+
+.animate-sheet-up { animation: sheet-up 260ms cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.animate-sheet-down { animation: sheet-down 200ms ease-in both; }
+.animate-fade-in { animation: fade-in 200ms ease-out both; }
+.animate-fade-out { animation: fade-out 200ms ease-in both; }
+.animate-pop { animation: pop 380ms ease-out both; }
+.animate-hop { animation: hop 650ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheet-up,
+  .animate-sheet-down,
+  .animate-fade-in,
+  .animate-fade-out,
+  .animate-pop,
+  .animate-hop {
+    animation-duration: 1ms;
+  }
+}
