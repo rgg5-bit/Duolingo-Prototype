@@ -6,6 +6,9 @@ learning, and Duo personalizes its message.
 
 Built with React 18 + Vite + Tailwind CSS v4.
 
+**Live demo:** https://rgg5-bit.github.io/Duolingo-Prototype/. This is rebuilt
+automatically by `.github/workflows/deploy-pages.yml` on every push to `main`.
+
 ## Run it
 
 Requires Node.js 18+.
