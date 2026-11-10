@@ -106,6 +106,42 @@ export function ReasonIcon({ className = "" }) {
   );
 }
 
+export function LessonIcon({ className = "" }) {
+  return (
+    <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
+      {/* stack of lesson cards */}
+      <rect x="16" y="6" width="38" height="44" rx="6" fill="#58a700" transform="rotate(8 35 28)" />
+      <rect x="10" y="12" width="38" height="46" rx="6" fill="#58cc02" />
+      <rect x="16" y="20" width="18" height="5" rx="2.5" fill="#fff" />
+      <rect x="16" y="30" width="26" height="5" rx="2.5" fill="#d7ffb8" />
+      <rect x="16" y="40" width="22" height="5" rx="2.5" fill="#d7ffb8" />
+      {/* star = "your pick" */}
+      <path
+        d="M48 36 L51.5 43 L59 44 L53.5 49 L55 56.5 L48 52.8 L41 56.5 L42.5 49 L37 44 L44.5 43 Z"
+        fill="#ffc800"
+        stroke="#131f24"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function SpeakerIcon({ className = "" }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" />
+      <path
+        d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function BackArrow({ className = "" }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">

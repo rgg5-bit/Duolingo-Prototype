@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { BackArrow, BookIcon, CompassIcon, DuoOwl, ReasonIcon } from "./Icons.jsx";
+import { BackArrow, BookIcon, CheckIcon, CompassIcon, DuoOwl, LessonIcon, ReasonIcon } from "./Icons.jsx";
 import { getDestination, languagesFor } from "./destinations.js";
+import { getLesson, lessonLine, loadLessons, saveLessons } from "./lessons.js";
+import { loadCompleted, saveCompleted } from "./lessonContent.js";
+import LessonPlayer from "./LessonPlayer.jsx";
+import LessonsSheet from "./LessonsSheet.jsx";
 import ReasonsSheet from "./ReasonsSheet.jsx";
 import { duoLine, getReason, loadSelection, saveSelection } from "./reasons.js";
 import { PRESSABLE } from "./styles.js";
@@ -27,10 +31,28 @@ export default function App() {
   const [selection, setSelection] = useState(loadSelection);
   const [startChoice, setStartChoice] = useState("scratch");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [lessons, setLessons] = useState(loadLessons);
+  const [lessonsOpen, setLessonsOpen] = useState(false);
+  const [completed, setCompleted] = useState(loadCompleted);
+  const [playing, setPlaying] = useState(null); // lesson id being played
   const [toast, setToast] = useState(null);
   const toastTimer = useRef();
 
-  const line = duoLine(selection);
+  // The reason line wins; picked lessons speak up when there's no reason yet.
+  const line = !selection && lessons.length ? lessonLine(lessons) : duoLine(selection);
+  // "Start from scratch" picks up at the first picked lesson not yet finished.
+  const upNextId = lessons.find((id) => !completed.includes(id)) ?? lessons[0];
+  const firstLesson = upNextId ? getLesson(upNextId) : null;
+
+  function handleLessonComplete(id) {
+    if (completed.includes(id)) return;
+    const next = [...completed, id];
+    setCompleted(next);
+    saveCompleted(next);
+  }
+
+  // The lesson after `id` in the user's picks, if any.
+  const nextAfter = (id) => lessons[lessons.indexOf(id) + 1] ?? null;
 
   function showToast(message) {
     clearTimeout(toastTimer.current);
@@ -43,6 +65,12 @@ export default function App() {
     setSelection(next);
     saveSelection(next);
     setSheetOpen(false);
+  }
+
+  function handleLessonsSave(next) {
+    setLessons(next);
+    saveLessons(next);
+    setLessonsOpen(false);
   }
 
   return (
@@ -78,9 +106,94 @@ export default function App() {
       </section>
 
       {/* Options */}
-      <section className="mt-auto flex flex-col gap-4 pt-12">
-        {START_OPTIONS.map(({ id, title, subtitle, Icon, badge, toast: message }) => {
+      <section className="mt-auto flex flex-col gap-4 pt-10">
+        {/* New feature: choose your first lessons, then play them */}
+        {lessons.length ? (
+          <div className="relative mb-2 rounded-2xl border-2 border-b-4 border-owl/70 bg-owl/10 px-4 pt-4 pb-3">
+            <span className="absolute -top-3.5 -right-1.5 rounded-lg bg-owl px-2.5 py-1 text-[13px] font-black tracking-[0.08em] text-ink">
+              YOUR LESSONS
+            </span>
+            <div className="flex items-center gap-3">
+              <LessonIcon className="h-12 w-12 shrink-0" />
+              <span className="flex-1 text-[18px] font-black leading-tight text-snow">
+                What do you want to learn first?
+              </span>
+            </div>
+
+            <ol className="mt-3 flex flex-col gap-2">
+              {lessons.map((id, i) => {
+                const l = getLesson(id);
+                const done = completed.includes(id);
+                const isNext = id === upNextId && !done;
+                return (
+                  <li key={id}>
+                    <button
+                      type="button"
+                      onClick={() => setPlaying(id)}
+                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left ${PRESSABLE} ${
+                        isNext ? "border-owl border-b-owl-dark bg-ink" : "border-line bg-ink hover:bg-panel/50"
+                      }`}
+                    >
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[13px] font-black ${
+                          done ? "bg-bee text-ink" : "bg-owl text-ink"
+                        }`}
+                      >
+                        {done ? <CheckIcon className="h-4 w-4" /> : i + 1}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-[15px] font-extrabold text-snow">
+                        {l.emoji} {l.label}
+                      </span>
+                      <span
+                        className={`shrink-0 text-[13px] font-black uppercase tracking-wide ${
+                          isNext ? "text-owl" : "text-fog"
+                        }`}
+                      >
+                        {done ? "Practice" : "Start"}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+
+            <button
+              type="button"
+              onClick={() => setLessonsOpen(true)}
+              aria-haspopup="dialog"
+              className="mt-2 w-full rounded-xl py-1.5 text-[13px] font-extrabold uppercase tracking-wide text-owl outline-none hover:brightness-110 focus-visible:ring-4 focus-visible:ring-sky/40"
+            >
+              Change lessons
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setLessonsOpen(true)}
+            aria-haspopup="dialog"
+            className={`relative mb-2 flex items-center gap-5 rounded-2xl border-dashed border-owl/70 px-5 py-4 text-left hover:bg-owl/10 ${PRESSABLE}`}
+          >
+            <span className="absolute -top-3.5 -right-1.5 rounded-lg bg-owl px-2.5 py-1 text-[13px] font-black tracking-[0.08em] text-ink">
+              NEW
+            </span>
+            <LessonIcon className="h-14 w-14 shrink-0" />
+            <span className="flex min-w-0 flex-col gap-1.5">
+              <span className="text-[18px] font-black leading-tight text-snow">
+                What do you want to learn first?
+              </span>
+              <span className="text-[15px] font-bold text-fog">
+                Pick topics like ordering at a café or introducing yourself
+              </span>
+            </span>
+          </button>
+        )}
+
+        {START_OPTIONS.map(({ id, title, subtitle: baseSubtitle, Icon, badge, toast: baseToast }) => {
           const selected = startChoice === id;
+          // Starting from scratch begins with the user's first picked lesson.
+          const custom = id === "scratch" && firstLesson;
+          const subtitle = custom ? `Start with ${firstLesson.emoji} ${firstLesson.label}!` : baseSubtitle;
+          const message = custom ? `Starting with ${firstLesson.emoji} ${firstLesson.label}…` : baseToast;
           return (
             <button
               key={id}
@@ -88,7 +201,8 @@ export default function App() {
               aria-pressed={selected}
               onClick={() => {
                 setStartChoice(id);
-                showToast(message);
+                if (custom) setPlaying(upNextId);
+                else showToast(message);
               }}
               className={`relative flex items-center gap-5 rounded-2xl px-5 py-5 text-left ${PRESSABLE} ${
                 selected ? "border-sky-line bg-panel" : "border-line hover:bg-panel/50"
@@ -163,7 +277,28 @@ export default function App() {
             )}
           </span>
         </button>
+
       </section>
+
+      {lessonsOpen && (
+        <LessonsSheet
+          initial={lessons}
+          reasonIds={selection?.ids}
+          onSave={handleLessonsSave}
+          onClose={() => setLessonsOpen(false)}
+        />
+      )}
+
+      {playing && (
+        <LessonPlayer
+          key={playing}
+          lessonId={playing}
+          nextId={nextAfter(playing)}
+          onComplete={handleLessonComplete}
+          onNext={(id) => setPlaying(id)}
+          onClose={() => setPlaying(null)}
+        />
+      )}
 
       {sheetOpen && (
         <ReasonsSheet

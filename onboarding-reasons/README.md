@@ -34,13 +34,30 @@ laptop, open DevTools → device toolbar (Ctrl+Shift+M) and pick an iPhone size.
    continent (or a tab) to zoom in, then tap pins to choose destinations. The
    footer lists the languages spoken there, and Duo's line and the main card
    update to match (e.g. "Let's get you ready for your trip to Japan!").
-6. Refresh the page: the selection is still there (saved in `localStorage`).
-7. Reopen the sheet and use **Clear my answers** to reset the demo.
+6. Tap **What do you want to learn first?** (the top card) to pick up to 3 beginner lessons
+   (introducing yourself, ordering at a café, asking for directions…). Each shows
+   a sample Italian phrase. Lessons that fit your reasons are tagged **FOR YOU** and
+   listed first (Travel → café, directions, hotel). The number on each pick is the
+   order you'll learn them in.
+7. Press **Continue**: the card lists your lessons in order, the "first time"
+   card changes to "Start with 👋 Introducing yourself!", and if you haven't
+   given a reason, Duo says which lesson you'll start with.
+8. Tap **Start** on a lesson (or the "first time" card) to play it: 6 short
+   exercises (pick the meaning, match pairs, build a sentence from a word bank).
+   Italian is read aloud where the browser supports it. Missed answers come back
+   at the end. The finish screen shows XP and accuracy, and offers the next lesson.
+   Finished lessons get a ✓ and switch to **Practice**.
+9. Refresh the page: your answers and finished lessons are still there (saved in `localStorage`).
+10. Reopen either sheet and use **Clear my answers** / **Clear my picks** to reset the demo.
 
 ## Files
 
 - `src/App.jsx`: the onboarding screen
 - `src/ReasonsSheet.jsx`: the multi-select bottom sheet
+- `src/LessonsSheet.jsx`: the "what do you want to learn first?" lesson picker
+- `src/LessonPlayer.jsx`: the lesson screen (exercises, feedback, finish screen)
+- `src/lessonContent.js`: words and sentences for each lesson, exercise generator
+- `src/lessons.js`: lesson topics, sample phrases, suggestions per reason, localStorage helpers
 - `src/TravelMap.jsx`: the zoomable travel map
 - `src/destinations.js`: destinations, their languages, and each continent's zoom area
 - `src/worldShapes.js`: continent outlines, smoothed into cartoon shapes

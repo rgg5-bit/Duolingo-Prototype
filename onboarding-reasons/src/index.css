@@ -14,6 +14,9 @@
   --color-owl: #58cc02;
   --color-owl-dark: #58a700;
   --color-grape: #ce82ff;
+  --color-cardinal: #ff4b4b;     /* wrong answer */
+  --color-cardinal-dark: #ea2b2b;
+  --color-bee: #ffc800;          /* XP */
 }
 
 html,
@@ -66,6 +69,18 @@ body {
 .animate-pop { animation: pop 380ms ease-out both; }
 .animate-hop { animation: hop 650ms ease-out both; }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+@keyframes rise {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.animate-shake { animation: shake 360ms ease-in-out both; }
+.animate-rise { animation: rise 220ms cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+
 /* Travel map */
 .map-land,
 .map-chip,
@@ -99,7 +114,9 @@ body {
   .animate-fade-in,
   .animate-fade-out,
   .animate-pop,
-  .animate-hop {
+  .animate-hop,
+  .animate-shake,
+  .animate-rise {
     animation-duration: 1ms;
   }
 }
