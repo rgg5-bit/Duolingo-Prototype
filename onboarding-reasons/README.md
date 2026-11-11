@@ -50,6 +50,27 @@ laptop, open DevTools → device toolbar (Ctrl+Shift+M) and pick an iPhone size.
 9. Refresh the page: your answers and finished lessons are still there (saved in `localStorage`).
 10. Reopen either sheet and use **Clear my answers** / **Clear my picks** to reset the demo.
 
+### Save your streak
+
+The 🔥 in the top right is the streak. It starts at 45 days, practiced
+yesterday but not yet today. Finishing a lesson lights the flame and adds a day.
+The **Demo controls** at the bottom let you move time forward.
+
+1. Press **Skip to tomorrow ⏭** without doing a lesson. Instead of resetting, the
+   streak goes **on hold** (❄️ frozen flame) and you have **7 days** to save it.
+2. Tap **Save my streak**. There are two ways back:
+   - **Invite 3 friends:** type a name, tap **Invite**, then use the dashed
+     **Demo:** buttons to have each friend join and finish a lesson. Each friend
+     moves through *Invited → Joined → Finished a lesson*. Friends get a free
+     Streak Freeze for joining. There's also a copyable invite link.
+   - **Comeback challenge:** finish a lesson on 3 different days (do a lesson,
+     skip to tomorrow, repeat).
+3. Either way ends in **Streak restored!** The old streak comes back, plus any
+   days practiced while it was on hold (45 + 3 = 48 via the comeback route).
+4. Rules: only streaks of 7+ days can be saved, once every 90 days. Shorter
+   streaks, or a hold that runs out, simply end. **Reset to 45-day streak**
+   starts the demo over.
+
 ## Files
 
 - `src/App.jsx`: the onboarding screen
@@ -58,6 +79,8 @@ laptop, open DevTools → device toolbar (Ctrl+Shift+M) and pick an iPhone size.
 - `src/LessonPlayer.jsx`: the lesson screen (exercises, feedback, finish screen)
 - `src/lessonContent.js`: words and sentences for each lesson, exercise generator
 - `src/lessons.js`: lesson topics, sample phrases, suggestions per reason, localStorage helpers
+- `src/streak.js`: streak rules (on hold, friend invites, comeback challenge, restore)
+- `src/StreakScreens.jsx`: streak on hold, save-your-streak, restored and ended screens
 - `src/TravelMap.jsx`: the zoomable travel map
 - `src/destinations.js`: destinations, their languages, and each continent's zoom area
 - `src/worldShapes.js`: continent outlines, smoothed into cartoon shapes

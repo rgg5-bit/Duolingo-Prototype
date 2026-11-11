@@ -127,6 +127,32 @@ export function LessonIcon({ className = "" }) {
   );
 }
 
+const FLAME_COLORS = {
+  lit: ["#ff9600", "#ffc800", "#fff3b0"],
+  off: ["#52656d", "#6f8791", "#8fa3ad"],
+  frozen: ["#1cb0f6", "#84d8ff", "#ddf4ff"],
+};
+
+// Streak flame. `variant`: lit (practiced today), off (not yet today), frozen (on hold).
+export function FlameIcon({ variant = "lit", className = "" }) {
+  const [outer, middle, inner] = FLAME_COLORS[variant];
+  return (
+    <svg viewBox="0 0 48 56" className={className} aria-hidden="true">
+      <path
+        d="M24 2 C27 12 40 18 40 34 C40 46 33 54 24 54 C15 54 8 46 8 34 C8 26 12 20 16 16 C16 22 19 26 22 26 C20 18 21 9 24 2 Z"
+        fill={outer}
+      />
+      <path d="M24 22 C27 29 34 32 34 40 C34 47 29 51 24 51 C19 51 14 47 14 40 C14 34 18 30 24 22 Z" fill={middle} />
+      <path d="M24 36 C26 40 29 42 29 45.5 C29 48.5 26.8 50 24 50 C21.2 50 19 48.5 19 45.5 C19 42 22 40 24 36 Z" fill={inner} />
+      {variant === "frozen" && (
+        <g stroke="#ffffff" strokeWidth="2" strokeLinecap="round">
+          <path d="M24 30 V46 M17 34 L31 42 M31 34 L17 42" />
+        </g>
+      )}
+    </svg>
+  );
+}
+
 export function SpeakerIcon({ className = "" }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">

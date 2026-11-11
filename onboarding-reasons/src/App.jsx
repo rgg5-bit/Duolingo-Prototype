@@ -1,5 +1,29 @@
 import { useEffect, useRef, useState } from "react";
-import { BackArrow, BookIcon, CheckIcon, CompassIcon, DuoOwl, LessonIcon, ReasonIcon } from "./Icons.jsx";
+import {
+  BackArrow,
+  BookIcon,
+  CheckIcon,
+  CompassIcon,
+  DuoOwl,
+  FlameIcon,
+  LessonIcon,
+  ReasonIcon,
+} from "./Icons.jsx";
+import {
+  COMEBACK_DAYS,
+  FRIENDS_NEEDED,
+  daysLeft,
+  demoState,
+  evaluate,
+  friendsDone,
+  loadStreak,
+  nextDay,
+  practice,
+  practicedToday,
+  saveStreak,
+  updateFriend,
+} from "./streak.js";
+import { StreakLost, StreakOnHold, StreakRescue, StreakRestored } from "./StreakScreens.jsx";
 import { getDestination, languagesFor } from "./destinations.js";
 import { getLesson, lessonLine, loadLessons, saveLessons } from "./lessons.js";
 import { loadCompleted, saveCompleted } from "./lessonContent.js";
@@ -27,6 +51,14 @@ const START_OPTIONS = [
   },
 ];
 
+// Which streak screen (if any) a streak event should open.
+function screenFor(event) {
+  if (!event) return null;
+  if (event.type === "hold") return "hold";
+  if (event.type === "restored" || event.type === "lost" || event.type === "expired") return event;
+  return null; // "extended" shows up on the lesson's finish screen instead
+}
+
 export default function App() {
   const [selection, setSelection] = useState(loadSelection);
   const [startChoice, setStartChoice] = useState("scratch");
@@ -38,6 +70,19 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const toastTimer = useRef();
 
+  // Streak: check for a missed day as soon as the app opens.
+  const [initialStreak] = useState(() => evaluate(loadStreak()));
+  const [streak, setStreak] = useState(initialStreak.state);
+  const [streakScreen, setStreakScreen] = useState(() => screenFor(initialStreak.event));
+
+  function applyStreak({ state, event }) {
+    setStreak(state);
+    saveStreak(state);
+    const screen = screenFor(event);
+    if (screen) setStreakScreen(screen);
+  }
+  useEffect(() => saveStreak(initialStreak.state), [initialStreak]);
+
   // The reason line wins; picked lessons speak up when there's no reason yet.
   const line = !selection && lessons.length ? lessonLine(lessons) : duoLine(selection);
   // "Start from scratch" picks up at the first picked lesson not yet finished.
@@ -45,6 +90,7 @@ export default function App() {
   const firstLesson = upNextId ? getLesson(upNextId) : null;
 
   function handleLessonComplete(id) {
+    applyStreak(practice(streak));
     if (completed.includes(id)) return;
     const next = [...completed, id];
     setCompleted(next);
@@ -52,7 +98,17 @@ export default function App() {
   }
 
   // The lesson after `id` in the user's picks, if any.
-  const nextAfter = (id) => lessons[lessons.indexOf(id) + 1] ?? null;
+  const nextAfter = (id) => (lessons.includes(id) ? lessons[lessons.indexOf(id) + 1] ?? null : null);
+
+  // Line shown under "Lesson complete!".
+  const streakNote = streak.hold
+    ? `💪 Comeback challenge: ${streak.hold.practiceDays}/${COMEBACK_DAYS} days`
+    : `🔥 ${streak.count}-day streak!`;
+
+  function practiceForRescue() {
+    setStreakScreen(null);
+    setPlaying(upNextId ?? "intro");
+  }
 
   function showToast(message) {
     clearTimeout(toastTimer.current);
@@ -75,7 +131,7 @@ export default function App() {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col px-4 pb-8 sm:border-x-2 sm:border-line">
-      <header className="flex h-16 items-center">
+      <header className="flex h-16 items-center justify-between">
         <button
           type="button"
           aria-label="Back"
@@ -83,6 +139,35 @@ export default function App() {
           className="-ml-2 rounded-xl p-2 text-fog hover:text-snow focus-visible:ring-4 focus-visible:ring-sky/40 outline-none"
         >
           <BackArrow className="h-7 w-7" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            streak.hold
+              ? setStreakScreen("rescue")
+              : showToast(
+                  practicedToday(streak)
+                    ? `🔥 ${streak.count}-day streak! You practiced today.`
+                    : `Do a lesson today to keep your ${streak.count}-day streak!`,
+                )
+          }
+          aria-label={
+            streak.hold ? `${streak.hold.lost}-day streak on hold` : `${streak.count}-day streak`
+          }
+          className="flex items-center gap-1.5 rounded-xl px-2 py-1.5 outline-none hover:bg-panel focus-visible:ring-4 focus-visible:ring-sky/40"
+        >
+          <FlameIcon
+            variant={streak.hold ? "frozen" : practicedToday(streak) ? "lit" : "off"}
+            className="h-7 w-auto"
+          />
+          <span
+            className={`text-[18px] font-black ${
+              streak.hold ? "text-sky" : practicedToday(streak) ? "text-[#ff9600]" : "text-fog"
+            }`}
+          >
+            {streak.hold ? streak.hold.lost : streak.count}
+          </span>
         </button>
       </header>
 
@@ -107,6 +192,32 @@ export default function App() {
 
       {/* Options */}
       <section className="mt-auto flex flex-col gap-4 pt-10">
+        {/* New feature: a broken streak goes on hold and can be saved */}
+        {streak.hold && (
+          <button
+            type="button"
+            onClick={() => setStreakScreen("rescue")}
+            className={`relative mb-2 flex items-center gap-4 rounded-2xl px-4 py-4 text-left ${PRESSABLE} border-sky-line bg-sky/10 hover:bg-sky/15`}
+          >
+            <span className="absolute -top-3.5 -right-1.5 rounded-lg bg-sky px-2.5 py-1 text-[13px] font-black tracking-[0.08em] text-ink">
+              {daysLeft(streak)} {daysLeft(streak) === 1 ? "DAY" : "DAYS"} LEFT
+            </span>
+            <FlameIcon variant="frozen" className="h-14 w-auto shrink-0" />
+            <span className="flex min-w-0 flex-col gap-1">
+              <span className="text-[18px] font-black leading-tight text-snow">
+                Your {streak.hold.lost}-day streak is on hold
+              </span>
+              <span className="text-[14px] font-bold text-fog">
+                Friends: {friendsDone(streak.hold)}/{FRIENDS_NEEDED} · Comeback:{" "}
+                {streak.hold.practiceDays}/{COMEBACK_DAYS} days
+              </span>
+              <span className="text-[13px] font-extrabold uppercase tracking-wide text-sky">
+                Save my streak →
+              </span>
+            </span>
+          </button>
+        )}
+
         {/* New feature: choose your first lessons, then play them */}
         {lessons.length ? (
           <div className="relative mb-2 rounded-2xl border-2 border-b-4 border-owl/70 bg-owl/10 px-4 pt-4 pb-3">
@@ -277,7 +388,40 @@ export default function App() {
             )}
           </span>
         </button>
+      </section>
 
+      {/* Prototype-only controls for testing the streak without waiting days */}
+      <section
+        aria-label="Demo controls"
+        className="mt-8 rounded-2xl border-2 border-dashed border-line px-4 py-3"
+      >
+        <p className="text-[12px] font-black uppercase tracking-[0.08em] text-muted">
+          Demo controls · {streak.offset === 0 ? "today" : `day +${streak.offset}`}
+        </p>
+        <div className="mt-2 flex gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              const missed = !practicedToday(streak);
+              applyStreak(nextDay(streak));
+              showToast(missed ? "Skipped a day without practicing…" : "Good morning! It's a new day.");
+            }}
+            className="flex-1 rounded-xl border-2 border-line py-2 text-[13px] font-extrabold text-snow outline-none hover:bg-panel focus-visible:ring-4 focus-visible:ring-sky/40"
+          >
+            Skip to tomorrow ⏭
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              applyStreak({ state: demoState(), event: null });
+              setStreakScreen(null);
+              showToast("Streak reset to 45 days");
+            }}
+            className="flex-1 rounded-xl border-2 border-line py-2 text-[13px] font-extrabold text-fog outline-none hover:bg-panel focus-visible:ring-4 focus-visible:ring-sky/40"
+          >
+            Reset to 45-day streak
+          </button>
+        </div>
       </section>
 
       {lessonsOpen && (
@@ -294,10 +438,34 @@ export default function App() {
           key={playing}
           lessonId={playing}
           nextId={nextAfter(playing)}
+          streakNote={streakNote}
           onComplete={handleLessonComplete}
           onNext={(id) => setPlaying(id)}
           onClose={() => setPlaying(null)}
         />
+      )}
+
+      {/* Streak screens wait until any lesson is closed. */}
+      {!playing && streakScreen === "hold" && streak.hold && (
+        <StreakOnHold
+          streak={streak}
+          onSave={() => setStreakScreen("rescue")}
+          onClose={() => setStreakScreen(null)}
+        />
+      )}
+      {!playing && streakScreen === "rescue" && streak.hold && (
+        <StreakRescue
+          streak={streak}
+          onFriend={(i, changes) => applyStreak(updateFriend(streak, i, changes))}
+          onPractice={practiceForRescue}
+          onClose={() => setStreakScreen(null)}
+        />
+      )}
+      {!playing && streakScreen?.type === "restored" && (
+        <StreakRestored event={streakScreen} onClose={() => setStreakScreen(null)} />
+      )}
+      {!playing && (streakScreen?.type === "lost" || streakScreen?.type === "expired") && (
+        <StreakLost event={streakScreen} onClose={() => setStreakScreen(null)} />
       )}
 
       {sheetOpen && (

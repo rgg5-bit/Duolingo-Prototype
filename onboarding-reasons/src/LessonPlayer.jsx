@@ -8,7 +8,7 @@ const XP_PER_EXERCISE = 10;
 
 // A short Duolingo-style lesson: multiple choice, matching pairs and
 // word-bank sentences. Missed exercises come back at the end.
-export default function LessonPlayer({ lessonId, nextId, onComplete, onNext, onClose }) {
+export default function LessonPlayer({ lessonId, nextId, streakNote, onComplete, onNext, onClose }) {
   const lesson = getLesson(lessonId);
   const exercises = useMemo(() => buildExercises(lessonId), [lessonId]);
 
@@ -103,6 +103,7 @@ export default function LessonPlayer({ lessonId, nextId, onComplete, onNext, onC
             lesson={lesson}
             xp={exercises.length * XP_PER_EXERCISE}
             accuracy={accuracy}
+            streakNote={streakNote}
             nextLesson={nextId ? getLesson(nextId) : null}
             onNext={() => onNext(nextId)}
             onClose={onClose}
@@ -410,7 +411,7 @@ function Footer({ status, ex, ready, onCheck, onContinue }) {
   );
 }
 
-function Finished({ lesson, xp, accuracy, nextLesson, onNext, onClose }) {
+function Finished({ lesson, xp, accuracy, streakNote, nextLesson, onNext, onClose }) {
   return (
     <div className="flex flex-1 flex-col items-center px-5 pt-16 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center animate-pop">
       <div className="w-[140px] animate-hop">
@@ -420,6 +421,11 @@ function Finished({ lesson, xp, accuracy, nextLesson, onNext, onClose }) {
       <p className="mt-2 text-[16px] font-bold text-fog">
         You finished {lesson.emoji} {lesson.label}.
       </p>
+      {streakNote && (
+        <p className="mt-4 rounded-full border-2 border-line px-4 py-1.5 text-[16px] font-black text-[#ff9600]">
+          {streakNote}
+        </p>
+      )}
 
       <div className="mt-8 grid w-full grid-cols-2 gap-3">
         <Stat label="Total XP" value={xp} color="bee" />
