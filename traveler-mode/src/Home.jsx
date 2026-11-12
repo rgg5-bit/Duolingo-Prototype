@@ -22,12 +22,16 @@ import {
 } from "./Icons.jsx";
 import {
   COURSES,
+  DESTINATIONS,
+  FLIGHT_TIMES,
   NODES,
   PATH_OFFSETS,
-  UNITS,
-  loadTravelMode,
-  saveTravelMode,
+  STANDARD_UNIT,
+  loadTrip,
+  saveTrip,
+  travelUnit,
 } from "./homeData.js";
+import TravelOnboarding from "./TravelOnboarding.jsx";
 
 const NAV = [
   { label: "Learn", Icon: NavHome },
@@ -214,7 +218,8 @@ function PathNode({ node }) {
 }
 
 export default function Home() {
-  const [travelMode, setTravelMode] = useState(loadTravelMode);
+  const [trip, setTrip] = useState(loadTrip);
+  const [onboarding, setOnboarding] = useState(false);
   const [bannerOpen, setBannerOpen] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [wash, setWash] = useState(0);
@@ -224,7 +229,8 @@ export default function Home() {
   const travelBtnRef = useRef(null);
   const mainRef = useRef(null);
 
-  const unit = travelMode ? UNITS.travel : UNITS.standard;
+  const travelMode = trip !== null;
+  const unit = travelMode ? travelUnit(trip) : STANDARD_UNIT;
   const course = COURSES[0];
 
   function showToast(message) {
@@ -244,16 +250,35 @@ export default function Home() {
     place();
     window.addEventListener("resize", place);
     return () => window.removeEventListener("resize", place);
-  }, []);
+  }, [onboarding]);
 
+  // Off → start the destination/flight onboarding. On → switch straight back.
   function toggleTravel() {
-    const next = !travelMode;
-    setTravelMode(next);
-    saveTravelMode(next);
     setBannerOpen(false);
-    // Re-keying the wash restarts its sweep animation on every toggle.
-    if (next) setWash((n) => n + 1);
-    showToast(next ? "✈️ Traveler mode on. Bon voyage !" : "Back to your regular course");
+    if (!travelMode) {
+      setOnboarding(true);
+      window.scrollTo(0, 0);
+      return;
+    }
+    setTrip(null);
+    saveTrip(null);
+    showToast("Back to your regular course");
+  }
+
+  function finishOnboarding(next) {
+    setOnboarding(false);
+    setTrip(next);
+    saveTrip(next);
+    window.scrollTo(0, 0);
+    // Re-keying the wash restarts its sweep animation each time.
+    setWash((n) => n + 1);
+    const dest = DESTINATIONS.find((d) => d.id === next.destination);
+    const when = FLIGHT_TIMES.find((f) => f.id === next.flight);
+    showToast(`✈️ ${dest.city} ${when.short}. ${dest.cheer}`);
+  }
+
+  if (onboarding) {
+    return <TravelOnboarding onClose={() => setOnboarding(false)} onDone={finishOnboarding} />;
   }
 
   return (

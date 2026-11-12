@@ -24,15 +24,21 @@ laptop, open DevTools → device toolbar (Ctrl+Shift+M) and pick an iPhone size.
 1. The **✈️** Travel button sits next to the course flag, with a **NEW! Traveler mode**
    banner pointing at it. Hover the button to see the iridescent sheen that signals
    you're about to enter Traveler mode.
-2. Click it (or the banner): a rainbow wash sweeps the screen and the unit banner
-   turns iridescent ("Traveler mode · France"). The rest of the homepage stays the same.
-3. Click it again to go back to the regular course.
-4. Tap the flag to see all courses.
-5. Refresh the page: Traveler mode stays on (saved in `localStorage`).
+2. Click it (or the banner) to start Traveler mode onboarding:
+   - **Where is your next destination?** Pick a city; it moves straight on.
+   - **When is your flight?** Pick a timeframe, then **Continue**.
+   The back arrow goes back a step (or home from the first step).
+3. Back on the homepage, a rainbow wash sweeps the screen and the unit banner turns
+   iridescent with your trip ("Traveler mode · Japan / Survive your first day in Tokyo").
+   The rest of the homepage stays the same.
+4. Click the ✈️ button again to go back to the regular course.
+5. Tap the flag to see all courses.
+6. Refresh the page: your trip stays saved (in `localStorage`).
 
 ## Files
 
 - `src/Home.jsx`: home/learning path with the Traveler mode button and course menu
-- `src/homeData.js`: courses, unit banners, path nodes, localStorage helpers
+- `src/TravelOnboarding.jsx`: the destination and flight-date onboarding screens
+- `src/homeData.js`: courses, destinations, flight times, path nodes, localStorage helpers
 - `src/Icons.jsx`: hand-drawn SVGs (Duo, flame, gem, path art, nav icons, etc.)
 - `src/index.css`: theme colors and the iridescent effect
