@@ -44,6 +44,25 @@ export function EnergyIcon({ className = "" }) {
   );
 }
 
+export function PlaneGlyph({ className = "" }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        d="M21.5 4.2 c.6-1.2-.5-2.3-1.7-1.7 L15 5 L5.5 2.5 L3.5 4.5 L11 8.5 L7.5 12 L4.5 11.5 L3 13 L6.5 15 L8.5 18.5 L10 17 L9.5 14 L13 10.5 L17 18 L19 16 L16.5 6.5 Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+export function CloseGlyph({ className = "" }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function RepeatIcon({ className = "" }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">

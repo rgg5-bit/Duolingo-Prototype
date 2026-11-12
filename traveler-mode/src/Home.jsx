@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   ChestIcon,
+  CloseGlyph,
   EnergyIcon,
   FlameIcon,
   GemIcon,
@@ -13,6 +14,7 @@ import {
   NavPractice,
   NavQuests,
   PeekerArt,
+  PlaneGlyph,
   RepeatIcon,
   SleeperArt,
   StarIcon,
@@ -22,7 +24,9 @@ import {
   COURSES,
   NODES,
   PATH_OFFSETS,
-  UNIT,
+  UNITS,
+  loadTravelMode,
+  saveTravelMode,
 } from "./homeData.js";
 
 const NAV = [
@@ -53,6 +57,53 @@ function Flag({ course, className = "" }) {
       {/* light outline so white stripes don't vanish on the white page */}
       <span className="absolute inset-0 rounded-md ring-1 ring-black/5 ring-inset" />
     </span>
+  );
+}
+
+function TravelModeButton({ on, onToggle }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      aria-label={on ? "Turn off Traveler mode" : "Switch to Traveler mode"}
+      title={on ? "Turn off Traveler mode" : "Switch to Traveler mode"}
+      onClick={onToggle}
+      className={`iridescent flex h-10 w-12 items-center justify-center rounded-xl border-2 border-b-4 bg-paper outline-none transition-[transform,color,border-color] duration-150 active:translate-y-[2px] active:border-b-2 focus-visible:ring-4 focus-visible:ring-macaw/30 ${
+        on ? "is-on" : "border-swan text-macaw"
+      }`}
+    >
+      <PlaneGlyph className="h-6 w-6" />
+    </button>
+  );
+}
+
+// "NEW! Traveler mode" strip under the top bar; its notch points up at the Travel button.
+function TravelBanner({ notchX, onOpen, onDismiss }) {
+  return (
+    <div className="relative mt-2 mb-3 animate-pop">
+      <span
+        aria-hidden="true"
+        className="absolute -top-[6px] h-3.5 w-3.5 -translate-x-1/2 rotate-45 rounded-[3px] bg-macaw"
+        style={{ left: notchX }}
+      />
+      <div className="relative flex items-center gap-2 rounded-2xl bg-macaw py-2.5 pr-2 pl-3.5 shadow-[0_4px_0_#1899d6]">
+        <button type="button" onClick={onOpen} className="flex flex-1 items-center gap-2 text-left outline-none">
+          <span className="rounded-md bg-bee px-1.5 py-0.5 text-[12px] font-black uppercase tracking-wide text-eel">
+            New!
+          </span>
+          <span className="text-[15px] font-black uppercase tracking-wide text-white">Traveler mode</span>
+          <span className="ml-auto text-[13px] font-extrabold text-white/90">Try it →</span>
+        </button>
+        <button
+          type="button"
+          aria-label="Dismiss"
+          onClick={onDismiss}
+          className="rounded-lg p-1 text-white/80 outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white"
+        >
+          <CloseGlyph className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -163,11 +214,17 @@ function PathNode({ node }) {
 }
 
 export default function Home() {
+  const [travelMode, setTravelMode] = useState(loadTravelMode);
+  const [bannerOpen, setBannerOpen] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [wash, setWash] = useState(0);
   const [toast, setToast] = useState(null);
+  const [notchX, setNotchX] = useState(0);
   const toastTimer = useRef();
+  const travelBtnRef = useRef(null);
+  const mainRef = useRef(null);
 
-  const unit = UNIT;
+  const unit = travelMode ? UNITS.travel : UNITS.standard;
   const course = COURSES[0];
 
   function showToast(message) {
@@ -176,6 +233,28 @@ export default function Home() {
     toastTimer.current = setTimeout(() => setToast(null), 2200);
   }
   useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  // Keep the banner's notch lined up under the Travel button.
+  useLayoutEffect(() => {
+    function place() {
+      const btn = travelBtnRef.current?.getBoundingClientRect();
+      const box = mainRef.current?.getBoundingClientRect();
+      if (btn && box) setNotchX(btn.left + btn.width / 2 - box.left - 16);
+    }
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, []);
+
+  function toggleTravel() {
+    const next = !travelMode;
+    setTravelMode(next);
+    saveTravelMode(next);
+    setBannerOpen(false);
+    // Re-keying the wash restarts its sweep animation on every toggle.
+    if (next) setWash((n) => n + 1);
+    showToast(next ? "✈️ Traveler mode on. Bon voyage !" : "Back to your regular course");
+  }
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col bg-paper sm:border-x-2 sm:border-swan">
@@ -204,6 +283,10 @@ export default function Home() {
           )}
         </div>
 
+        <div ref={travelBtnRef}>
+          <TravelModeButton on={travelMode} onToggle={toggleTravel} />
+        </div>
+
         <span className="flex items-center gap-1.5 text-[17px] font-black text-hare" aria-label="0 day streak">
           <FlameIcon className="h-7 w-7 text-[#d3d3d3]" />0
         </span>
@@ -216,9 +299,18 @@ export default function Home() {
         </span>
       </header>
 
-      <main className="flex-1 px-4 pb-32">
+      <main ref={mainRef} className="flex-1 px-4 pb-32">
+        {bannerOpen && !travelMode && (
+          <TravelBanner notchX={notchX} onOpen={toggleTravel} onDismiss={() => setBannerOpen(false)} />
+        )}
+
         {/* Unit banner */}
-        <section className="mt-1 flex animate-pop items-stretch overflow-hidden rounded-2xl border-b-4 border-turtle-dark bg-turtle">
+        <section
+          key={unit.title}
+          className={`mt-1 flex animate-pop items-stretch overflow-hidden rounded-2xl border-b-4 ${
+            travelMode ? "iridescent-banner border-whale" : "border-turtle-dark bg-turtle"
+          }`}
+        >
           <div className="flex-1 px-4 py-3.5">
             <p className="text-[15px] font-black uppercase tracking-[0.06em] text-white/75">{unit.section}</p>
             <h1 className="mt-0.5 text-[20px] font-extrabold leading-tight text-white">{unit.title}</h1>
@@ -285,6 +377,8 @@ export default function Home() {
           </button>
         ))}
       </nav>
+
+      {wash > 0 && <div key={wash} aria-hidden="true" className="iridescent-wash pointer-events-none fixed inset-0 z-50" />}
 
       {toast && (
         <div

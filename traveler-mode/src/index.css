@@ -10,6 +10,7 @@
   --color-hare: #afafaf;         /* muted icons/text */
   --color-wolf: #777777;         /* secondary text */
   --color-eel: #4b4b4b;          /* primary text */
+  --color-ink: #131f24;          /* text on iridescent film */
   --color-macaw: #1cb0f6;
   --color-whale: #1899d6;
   --color-bee: #ffc800;
@@ -46,11 +47,101 @@ body {
 }
 .animate-bob { animation: bob 1.4s ease-in-out infinite; }
 
+/* Traveler mode: holographic / iridescent sheen.
+   ::before is the shifting rainbow film, ::after is a glare that sweeps across. */
+@keyframes iridescent-shift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+@keyframes iridescent-glare {
+  from { transform: translateX(-130%) skewX(-20deg); }
+  to { transform: translateX(230%) skewX(-20deg); }
+}
+@keyframes iridescent-wash {
+  0% { opacity: 0; clip-path: circle(0% at 30% 32px); }
+  35% { opacity: 0.55; }
+  100% { opacity: 0; clip-path: circle(150% at 30% 32px); }
+}
+
+.iridescent {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent;
+}
+.iridescent::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    110deg,
+    #ffb3ec,
+    #c9a8ff,
+    #8fd8ff,
+    #9cffd6,
+    #fff3a6,
+    #ffb3ec
+  );
+  background-size: 300% 100%;
+  opacity: 0;
+  transition: opacity 220ms ease-out;
+  animation: iridescent-shift 2.4s linear infinite;
+}
+.iridescent::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 45%;
+  z-index: -1;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  transform: translateX(-130%) skewX(-20deg);
+  pointer-events: none;
+}
+.iridescent:hover,
+.iridescent:focus-visible,
+.iridescent.is-on {
+  color: var(--color-ink);
+  border-color: rgba(162, 139, 255, 0.7);
+}
+.iridescent:hover,
+.iridescent:focus-visible {
+  box-shadow: 0 0 18px rgba(201, 168, 255, 0.55), 0 0 4px rgba(143, 216, 255, 0.8);
+}
+.iridescent:hover::before,
+.iridescent:focus-visible::before,
+.iridescent.is-on::before {
+  opacity: 1;
+}
+.iridescent:hover::after,
+.iridescent:focus-visible::after {
+  animation: iridescent-glare 900ms ease-out;
+}
+/* Once on, keep the film but slow it down so it reads as a state, not a hover. */
+.iridescent.is-on::before {
+  animation-duration: 6s;
+}
+
+.iridescent-banner {
+  background: linear-gradient(110deg, #1cb0f6, #7c6cff, #ce82ff, #1cb0f6);
+  background-size: 300% 100%;
+  animation: iridescent-shift 10s linear infinite;
+}
+
+.iridescent-wash {
+  background: linear-gradient(120deg, #ffb3ec, #c9a8ff, #8fd8ff, #9cffd6, #fff3a6);
+  animation: iridescent-wash 750ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-pop {
+  .animate-pop,
+  .iridescent-wash {
     animation-duration: 1ms;
   }
-  .animate-bob {
+  .animate-bob,
+  .iridescent::before,
+  .iridescent::after,
+  .iridescent-banner {
     animation: none !important;
   }
 }
