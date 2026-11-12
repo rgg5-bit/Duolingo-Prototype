@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { BackArrow, CheckIcon, DuoOwl } from "./Icons.jsx";
 import {
-  COURSE_LANGUAGE,
   DESTINATIONS,
   REGIONS,
   REGION_ORDER,
@@ -9,6 +8,7 @@ import {
   languagesFor,
   tripPhrase,
 } from "./destinations.js";
+import { course } from "./courses.js";
 import { PRESSABLE } from "./styles.js";
 import { ANTARCTICA, CLOUDS, LAND, WAVES, project } from "./worldShapes.js";
 
@@ -121,6 +121,7 @@ export default function TravelMap({ initial, onDone, onClose }) {
   const unitsPerPx = vb[2] / frameW;
   const lip = 4 * unitsPerPx;
   const languages = languagesFor(picked);
+  const courseName = course().name;
   const countIn = (r) => picked.filter((id) => getDestination(id).region === r).length;
   const regionDests = DESTINATIONS.filter((d) => d.region === region);
   const showPins = region !== "world" && !flying;
@@ -472,7 +473,7 @@ export default function TravelMap({ initial, onDone, onClose }) {
               </p>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {languages.map((lang) => {
-                  const course = lang === COURSE_LANGUAGE;
+                  const course = lang === courseName;
                   return (
                     <span
                       key={lang}

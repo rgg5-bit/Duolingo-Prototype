@@ -1,4 +1,4 @@
-// Courses shown in the flag dropdown. Only French is "active" in this demo.
+// Courses shown in the flag dropdown. The selected one is saved (loadCourse).
 export const COURSES = [
   { id: "fr", name: "French", flag: ["#1cb0f6", "#ffffff", "#ff4b4b"], xp: 6 },
   { id: "es", name: "Spanish", flag: ["#ff4b4b", "#ffc800", "#ff4b4b"], horizontal: true },
@@ -55,6 +55,25 @@ export const NODES = [
 
 // Zig-zag offsets (px) for the winding lesson path, matching the real app.
 export const PATH_OFFSETS = [0, -44, -66, -44, 0, 44, 66];
+
+const COURSE_KEY = "duo-prototype:course";
+
+export function loadCourse() {
+  try {
+    const id = localStorage.getItem(COURSE_KEY);
+    return COURSES.some((c) => c.id === id) ? id : COURSES[0].id;
+  } catch {
+    return COURSES[0].id;
+  }
+}
+
+export function saveCourse(id) {
+  try {
+    localStorage.setItem(COURSE_KEY, id);
+  } catch {
+    // Storage can be blocked (private mode); the in-memory state still works.
+  }
+}
 
 const TRAVEL_KEY = "duo-prototype:travel-mode";
 

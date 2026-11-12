@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { course } from "./courses.js";
 import { PRESSABLE } from "./styles.js";
 import { CheckIcon, CloseIcon } from "./Icons.jsx";
 import { getDestination } from "./destinations.js";
@@ -89,7 +90,7 @@ export default function ReasonsSheet({ initial, onSave, onClose }) {
         <div className="flex items-start gap-3 px-5 pt-3 pb-2">
           <div className="flex-1">
             <h2 id="reasons-title" className="text-[22px] font-black leading-tight text-snow">
-              Why are you learning Italian?
+              Why are you learning {course().name}?
             </h2>
             <p className="mt-1 text-[15px] font-bold text-fog">Pick all that apply.</p>
           </div>

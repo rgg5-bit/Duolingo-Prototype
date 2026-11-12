@@ -24,6 +24,7 @@ import {
   updateFriend,
 } from "./streak.js";
 import { StreakLost, StreakOnHold, StreakRescue, StreakRestored } from "./StreakScreens.jsx";
+import { course } from "./courses.js";
 import { getDestination, languagesFor } from "./destinations.js";
 import { getLesson, lessonLine, loadLessons, saveLessons } from "./lessons.js";
 import { loadCompleted, saveCompleted } from "./lessonContent.js";
@@ -36,7 +37,7 @@ import { PRESSABLE } from "./styles.js";
 const START_OPTIONS = [
   {
     id: "scratch",
-    title: "Learning Italian for the first time?",
+    title: (lang) => `Learning ${lang} for the first time?`,
     subtitle: "Start from scratch!",
     Icon: BookIcon,
     badge: "RECOMMENDED",
@@ -44,7 +45,7 @@ const START_OPTIONS = [
   },
   {
     id: "placement",
-    title: "Already know some Italian?",
+    title: (lang) => `Already know some ${lang}?`,
     subtitle: "Let's find your starting point!",
     Icon: CompassIcon,
     toast: "Loading your placement test…",
@@ -328,7 +329,7 @@ export default function App({ onBack }) {
               <Icon className="h-16 w-16 shrink-0" />
               <span className="flex flex-col gap-1.5">
                 <span className={`text-[19px] font-black leading-tight ${selected ? "text-sky" : "text-snow"}`}>
-                  {title}
+                  {title(course().name)}
                 </span>
                 <span className={`text-[15px] font-bold ${selected ? "text-sky" : "text-snow/90"}`}>
                   {subtitle}
@@ -353,7 +354,7 @@ export default function App({ onBack }) {
           <ReasonIcon className="h-14 w-14 shrink-0" />
           <span className="flex min-w-0 flex-col gap-1.5">
             <span className="text-[18px] font-black leading-tight text-snow">
-              Why are you learning Italian?
+              Why are you learning {course().name}?
             </span>
             {selection ? (
               <>

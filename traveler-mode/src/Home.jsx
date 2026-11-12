@@ -27,7 +27,9 @@ import {
   NODES,
   PATH_OFFSETS,
   STANDARD_UNIT,
+  loadCourse,
   loadTrip,
+  saveCourse,
   saveTrip,
   travelUnit,
 } from "./homeData.js";
@@ -111,7 +113,7 @@ function TravelBanner({ notchX, onOpen, onDismiss }) {
   );
 }
 
-function CoursesMenu({ onClose, onPick, tryId }) {
+function CoursesMenu({ onClose, onPick, currentId }) {
   const ref = useRef(null);
   useEffect(() => {
     // The parent also holds the flag button, so tapping it toggles instead of close-then-reopen.
@@ -139,16 +141,11 @@ function CoursesMenu({ onClose, onPick, tryId }) {
           role="menuitem"
           onClick={() => onPick(c)}
           className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[16px] font-extrabold outline-none hover:bg-polar focus-visible:bg-polar ${
-            c.id === "fr" ? "bg-[#ddf4ff] text-macaw" : "text-eel"
+            c.id === currentId ? "bg-[#ddf4ff] text-macaw" : "text-eel"
           }`}
         >
           <Flag course={c} className="h-6 w-8" />
           {c.name}
-          {c.id === tryId && (
-            <span className="ml-auto rounded-lg bg-[#ce82ff] px-2 py-0.5 text-[11px] font-black tracking-[0.08em] text-white">
-              TRY IT
-            </span>
-          )}
         </button>
       ))}
     </div>
@@ -222,9 +219,10 @@ function PathNode({ node }) {
   );
 }
 
-// onStartItalian: when set (the combined build in onboarding-reasons), the
-// Traveler mode button and picking Italian open the Italian onboarding prototype.
-export default function Home({ onStartItalian }) {
+// onStartOnboarding: when set (the combined build in onboarding-reasons), the
+// Traveler mode button opens the onboarding prototype in the selected course's language.
+export default function Home({ onStartOnboarding }) {
+  const [courseId, setCourseId] = useState(loadCourse);
   const [trip, setTrip] = useState(loadTrip);
   const [onboarding, setOnboarding] = useState(false);
   const [bannerOpen, setBannerOpen] = useState(true);
@@ -238,7 +236,7 @@ export default function Home({ onStartItalian }) {
 
   const travelMode = trip !== null;
   const unit = travelMode ? travelUnit(trip) : STANDARD_UNIT;
-  const course = COURSES[0];
+  const course = COURSES.find((c) => c.id === courseId);
 
   function showToast(message) {
     clearTimeout(toastTimer.current);
@@ -260,11 +258,11 @@ export default function Home({ onStartItalian }) {
   }, [onboarding]);
 
   // Off → start the destination/flight onboarding (or, in the combined build, the
-  // Italian onboarding prototype). On → switch straight back.
+  // onboarding prototype for this course). On → switch straight back.
   function toggleTravel() {
     setBannerOpen(false);
-    if (!travelMode && onStartItalian) {
-      onStartItalian();
+    if (!travelMode && onStartOnboarding) {
+      onStartOnboarding(courseId);
       return;
     }
     if (!travelMode) {
@@ -307,16 +305,18 @@ export default function Home({ onStartItalian }) {
             className="flex h-10 items-center gap-2 rounded-xl px-1 outline-none hover:bg-polar focus-visible:ring-4 focus-visible:ring-macaw/30"
           >
             <Flag course={course} className="h-[22px] w-[30px]" />
-            <span className="text-[17px] font-black text-eel">{course.xp}</span>
+            <span className="text-[17px] font-black text-eel">{course.xp ?? 0}</span>
           </button>
           {menuOpen && (
             <CoursesMenu
               onClose={() => setMenuOpen(false)}
-              tryId={onStartItalian && "it"}
+              currentId={courseId}
               onPick={(c) => {
                 setMenuOpen(false);
-                if (c.id === "it" && onStartItalian) onStartItalian();
-                else if (c.id !== "fr") showToast(`${c.name} isn't part of this demo`);
+                if (c.id === courseId) return;
+                setCourseId(c.id);
+                saveCourse(c.id);
+                showToast(`Switched to ${c.name}`);
               }}
             />
           )}

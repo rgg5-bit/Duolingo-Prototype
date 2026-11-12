@@ -1,6 +1,8 @@
+import { course, courseKey } from "./courses.js";
 import { isDestination, tripPhrase } from "./destinations.js";
 
-// Each reason has a short chip label, a solo speech-bubble line, and a
+// Each reason has a short chip label, a solo speech-bubble line (a function
+// when it names the course), and a
 // fragment used when several reasons are combined ("ready for X and Y").
 export const REASONS = [
   {
@@ -16,7 +18,7 @@ export const REASONS = [
     emoji: "🎉",
     label: "For fun",
     chip: "Fun",
-    line: "Let's make Italian your new favorite hobby!",
+    line: (c) => `Let's make ${c.name} your new favorite hobby!`,
     fragment: "some fun",
   },
   {
@@ -32,7 +34,7 @@ export const REASONS = [
     emoji: "✈️",
     label: "Travel",
     chip: "Travel",
-    line: "Let's get you ready for your trip to Italy!",
+    line: (c) => `Let's get you ready for your trip to ${c.country}!`,
     fragment: "travel",
   },
   {
@@ -40,7 +42,7 @@ export const REASONS = [
     emoji: "🎓",
     label: "School / education",
     chip: "School",
-    line: "Let's help you ace your Italian class!",
+    line: (c) => `Let's help you ace your ${c.name} class!`,
     fragment: "the classroom",
   },
   {
@@ -77,6 +79,10 @@ export function getReason(id) {
   return byId[id];
 }
 
+function lineText(reason) {
+  return typeof reason.line === "function" ? reason.line(course()) : reason.line;
+}
+
 export function duoLine(selection) {
   const ids = selection?.ids ?? [];
   const trips = selection?.trips ?? [];
@@ -86,7 +92,7 @@ export function duoLine(selection) {
   const lineFor = (id) =>
     id === "travel" && trips.length
       ? `Let's get you ready for your trip to ${tripPhrase(trips)}!`
-      : byId[id].line;
+      : lineText(byId[id]);
   const fragmentFor = (id) =>
     id === "travel" && trips.length ? `your trip to ${tripPhrase(trips)}` : byId[id].fragment;
 
@@ -97,11 +103,11 @@ export function duoLine(selection) {
   return `Great choices! Let's get you ready for ${parts[0]}${tail}!`;
 }
 
-const STORAGE_KEY = "duo-prototype:learning-reasons";
+const STORAGE_KEY = () => courseKey("duo-prototype:learning-reasons");
 
 export function loadSelection() {
   try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY()));
     if (!parsed || !Array.isArray(parsed.ids)) return null;
     const ids = parsed.ids.filter((id) => byId[id]);
     const trips = Array.isArray(parsed.trips) ? parsed.trips.filter(isDestination) : [];
@@ -113,8 +119,8 @@ export function loadSelection() {
 
 export function saveSelection(selection) {
   try {
-    if (selection) localStorage.setItem(STORAGE_KEY, JSON.stringify(selection));
-    else localStorage.removeItem(STORAGE_KEY);
+    if (selection) localStorage.setItem(STORAGE_KEY(), JSON.stringify(selection));
+    else localStorage.removeItem(STORAGE_KEY());
   } catch {
     // Storage can be blocked (private mode); the in-memory state still works.
   }
