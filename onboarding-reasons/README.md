@@ -24,8 +24,8 @@ laptop, open DevTools → device toolbar (Ctrl+Shift+M) and pick an iPhone size.
 
 ## Demo script
 
-1. Tap either start card: the blue selection moves, and a toast shows what would happen next.
-2. Tap **Why are you learning Italian?** to open the bottom sheet.
+1. Tap **Already know some Italian?** (the bottom card): it highlights, and a toast shows what would happen next.
+2. Tap **Why are you learning Italian?** (the second card) to open the bottom sheet.
 3. **Continue** stays disabled until you pick at least one reason. Pick several,
    and try **Other** to type a custom reason.
 4. Press **Continue**: chips show up on the card and Duo's bubble changes
@@ -39,10 +39,9 @@ laptop, open DevTools → device toolbar (Ctrl+Shift+M) and pick an iPhone size.
    a sample Italian phrase. Lessons that fit your reasons are tagged **FOR YOU** and
    listed first (Travel → café, directions, hotel). The number on each pick is the
    order you'll learn them in.
-7. Press **Continue**: the card lists your lessons in order, the "first time"
-   card changes to "Start with 👋 Introducing yourself!", and if you haven't
+7. Press **Continue**: the card lists your lessons in order, and if you haven't
    given a reason, Duo says which lesson you'll start with.
-8. Tap **Start** on a lesson (or the "first time" card) to play it: 6 short
+8. Tap **Start** on a lesson to play it: 6 short
    exercises (pick the meaning, match pairs, build a sentence from a word bank).
    Italian is read aloud where the browser supports it. Missed answers come back
    at the end. The finish screen shows XP and accuracy, and offers the next lesson.
@@ -54,7 +53,11 @@ laptop, open DevTools → device toolbar (Ctrl+Shift+M) and pick an iPhone size.
 
 The 🔥 in the top right is the streak. It starts at 45 days, practiced
 yesterday but not yet today. Finishing a lesson lights the flame and adds a day.
-The **Demo controls** at the bottom let you move time forward.
+On a first visit, a hint points at it. Tap the 🔥 to see the streak count, this
+week's practiced days, whether you've practiced today, and the next step
+(start a lesson, or save the streak when it's on hold).
+The **Demo controls** at the bottom let you move time forward, and say whether
+skipping ahead will keep or miss a day.
 
 1. Press **Skip to tomorrow ⏭** without doing a lesson. Instead of resetting, the
    streak goes **on hold** (❄️ frozen flame) and you have **7 days** to save it.

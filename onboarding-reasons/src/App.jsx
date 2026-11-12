@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import StreakPopover from "./StreakPopover.jsx";
 import {
   BackArrow,
-  BookIcon,
   CheckIcon,
   CompassIcon,
   DuoOwl,
@@ -35,14 +35,6 @@ import { PRESSABLE } from "./styles.js";
 
 const START_OPTIONS = [
   {
-    id: "scratch",
-    title: "Learning Italian for the first time?",
-    subtitle: "Start from scratch!",
-    Icon: BookIcon,
-    badge: "RECOMMENDED",
-    toast: "Starting Unit 1 from scratch…",
-  },
-  {
     id: "placement",
     title: "Already know some Italian?",
     subtitle: "Let's find your starting point!",
@@ -50,6 +42,8 @@ const START_OPTIONS = [
     toast: "Loading your placement test…",
   },
 ];
+
+const TIP_KEY = "duo-prototype:streak-tip-seen";
 
 // Which streak screen (if any) a streak event should open.
 function screenFor(event) {
@@ -61,7 +55,7 @@ function screenFor(event) {
 
 export default function App() {
   const [selection, setSelection] = useState(loadSelection);
-  const [startChoice, setStartChoice] = useState("scratch");
+  const [startChoice, setStartChoice] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [lessons, setLessons] = useState(loadLessons);
   const [lessonsOpen, setLessonsOpen] = useState(false);
@@ -83,11 +77,29 @@ export default function App() {
   }
   useEffect(() => saveStreak(initialStreak.state), [initialStreak]);
 
+  // Streak info dropdown, plus a one-time hint pointing at the flame.
+  const [streakInfoOpen, setStreakInfoOpen] = useState(false);
+  const [tipSeen, setTipSeen] = useState(() => {
+    try {
+      return localStorage.getItem(TIP_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  function markTipSeen() {
+    setTipSeen(true);
+    try {
+      localStorage.setItem(TIP_KEY, "1");
+    } catch {
+      // Storage blocked: the tip just reappears next visit.
+    }
+  }
+  const closeStreakInfo = useCallback(() => setStreakInfoOpen(false), []);
+
   // The reason line wins; picked lessons speak up when there's no reason yet.
   const line = !selection && lessons.length ? lessonLine(lessons) : duoLine(selection);
-  // "Start from scratch" picks up at the first picked lesson not yet finished.
+  // The first picked lesson not yet finished.
   const upNextId = lessons.find((id) => !completed.includes(id)) ?? lessons[0];
-  const firstLesson = upNextId ? getLesson(upNextId) : null;
 
   function handleLessonComplete(id) {
     applyStreak(practice(streak));
@@ -131,7 +143,7 @@ export default function App() {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col px-4 pb-8 sm:border-x-2 sm:border-line">
-      <header className="flex h-16 items-center justify-between">
+      <header className="relative flex h-16 items-center justify-between">
         <button
           type="button"
           aria-label="Back"
@@ -143,19 +155,20 @@ export default function App() {
 
         <button
           type="button"
-          onClick={() =>
-            streak.hold
-              ? setStreakScreen("rescue")
-              : showToast(
-                  practicedToday(streak)
-                    ? `🔥 ${streak.count}-day streak! You practiced today.`
-                    : `Do a lesson today to keep your ${streak.count}-day streak!`,
-                )
-          }
+          onClick={() => {
+            setStreakInfoOpen((open) => !open);
+            markTipSeen();
+          }}
+          aria-haspopup="dialog"
+          aria-expanded={streakInfoOpen}
           aria-label={
-            streak.hold ? `${streak.hold.lost}-day streak on hold` : `${streak.count}-day streak`
+            streak.hold
+              ? `${streak.hold.lost}-day streak on hold. Show streak info`
+              : `${streak.count}-day streak. Show streak info`
           }
-          className="flex items-center gap-1.5 rounded-xl px-2 py-1.5 outline-none hover:bg-panel focus-visible:ring-4 focus-visible:ring-sky/40"
+          className={`flex items-center gap-1.5 rounded-xl px-2 py-1.5 outline-none hover:bg-panel focus-visible:ring-4 focus-visible:ring-sky/40 ${
+            streakInfoOpen ? "bg-panel" : ""
+          }`}
         >
           <FlameIcon
             variant={streak.hold ? "frozen" : practicedToday(streak) ? "lit" : "off"}
@@ -169,6 +182,45 @@ export default function App() {
             {streak.hold ? streak.hold.lost : streak.count}
           </span>
         </button>
+
+        {/* First-visit hint so people know the flame is tappable */}
+        {!tipSeen && !streakInfoOpen && (
+          <div className="absolute top-[58px] right-0 z-20 flex animate-pop items-center rounded-xl bg-sky text-ink shadow-lg">
+            <span aria-hidden="true" className="absolute -top-[6px] right-6 h-3 w-3 rotate-45 bg-sky" />
+            <button
+              type="button"
+              onClick={() => {
+                setStreakInfoOpen(true);
+                markTipSeen();
+              }}
+              className="rounded-xl py-2 pl-3 text-left text-[13px] font-extrabold leading-tight outline-none focus-visible:ring-4 focus-visible:ring-snow/60"
+            >
+              Tap the 🔥 to check your streak
+              <br />
+              <span className="font-bold opacity-80">and what to do today</span>
+            </button>
+            <button
+              type="button"
+              aria-label="Dismiss tip"
+              onClick={markTipSeen}
+              className="mx-1 rounded-lg px-1.5 py-1 text-[16px] font-black opacity-70 outline-none hover:opacity-100 focus-visible:ring-4 focus-visible:ring-snow/60"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {streakInfoOpen && (
+          <StreakPopover
+            streak={streak}
+            onClose={closeStreakInfo}
+            onAction={() => {
+              setStreakInfoOpen(false);
+              if (streak.hold) setStreakScreen("rescue");
+              else setPlaying(upNextId ?? "intro");
+            }}
+          />
+        )}
       </header>
 
       {/* Duo + speech bubble */}
@@ -299,50 +351,12 @@ export default function App() {
           </button>
         )}
 
-        {START_OPTIONS.map(({ id, title, subtitle: baseSubtitle, Icon, badge, toast: baseToast }) => {
-          const selected = startChoice === id;
-          // Starting from scratch begins with the user's first picked lesson.
-          const custom = id === "scratch" && firstLesson;
-          const subtitle = custom ? `Start with ${firstLesson.emoji} ${firstLesson.label}!` : baseSubtitle;
-          const message = custom ? `Starting with ${firstLesson.emoji} ${firstLesson.label}…` : baseToast;
-          return (
-            <button
-              key={id}
-              type="button"
-              aria-pressed={selected}
-              onClick={() => {
-                setStartChoice(id);
-                if (custom) setPlaying(upNextId);
-                else showToast(message);
-              }}
-              className={`relative flex items-center gap-5 rounded-2xl px-5 py-5 text-left ${PRESSABLE} ${
-                selected ? "border-sky-line bg-panel" : "border-line hover:bg-panel/50"
-              }`}
-            >
-              {badge && (
-                <span className="absolute -top-3.5 -right-1.5 rounded-lg bg-sky px-2.5 py-1 text-[13px] font-black tracking-[0.08em] text-ink">
-                  {badge}
-                </span>
-              )}
-              <Icon className="h-16 w-16 shrink-0" />
-              <span className="flex flex-col gap-1.5">
-                <span className={`text-[19px] font-black leading-tight ${selected ? "text-sky" : "text-snow"}`}>
-                  {title}
-                </span>
-                <span className={`text-[15px] font-bold ${selected ? "text-sky" : "text-snow/90"}`}>
-                  {subtitle}
-                </span>
-              </span>
-            </button>
-          );
-        })}
-
         {/* New feature: why are you learning? */}
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
           aria-haspopup="dialog"
-          className={`relative mt-2 flex items-center gap-5 rounded-2xl border-dashed px-5 py-4 text-left ${PRESSABLE} ${
+          className={`relative mb-2 flex items-center gap-5 rounded-2xl border-dashed px-5 py-4 text-left ${PRESSABLE} ${
             selection ? "border-solid border-grape/70 bg-grape/10" : "border-line hover:bg-panel/50"
           }`}
         >
@@ -388,6 +402,34 @@ export default function App() {
             )}
           </span>
         </button>
+
+        {START_OPTIONS.map(({ id, title, subtitle, Icon, toast: message }) => {
+          const selected = startChoice === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={selected}
+              onClick={() => {
+                setStartChoice(id);
+                showToast(message);
+              }}
+              className={`relative flex items-center gap-5 rounded-2xl px-5 py-5 text-left ${PRESSABLE} ${
+                selected ? "border-sky-line bg-panel" : "border-line hover:bg-panel/50"
+              }`}
+            >
+              <Icon className="h-16 w-16 shrink-0" />
+              <span className="flex flex-col gap-1.5">
+                <span className={`text-[19px] font-black leading-tight ${selected ? "text-sky" : "text-snow"}`}>
+                  {title}
+                </span>
+                <span className={`text-[15px] font-bold ${selected ? "text-sky" : "text-snow/90"}`}>
+                  {subtitle}
+                </span>
+              </span>
+            </button>
+          );
+        })}
       </section>
 
       {/* Prototype-only controls for testing the streak without waiting days */}
@@ -397,6 +439,15 @@ export default function App() {
       >
         <p className="text-[12px] font-black uppercase tracking-[0.08em] text-muted">
           Demo controls · {streak.offset === 0 ? "today" : `day +${streak.offset}`}
+        </p>
+        <p
+          className={`mt-1 text-[14px] font-extrabold ${
+            practicedToday(streak) ? "text-owl" : "text-bee"
+          }`}
+        >
+          {practicedToday(streak)
+            ? "✓ Practiced today: skipping ahead keeps the streak"
+            : "✗ Not practiced today: skipping ahead misses a day"}
         </p>
         <div className="mt-2 flex gap-2">
           <button
