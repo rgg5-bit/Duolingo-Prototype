@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
+
+  /* Duolingo light-theme palette */
+  --color-paper: #ffffff;        /* page background */
+  --color-polar: #f7f7f7;        /* hover fill */
+  --color-swan: #e5e5e5;         /* borders, locked nodes */
+  --color-hare: #afafaf;         /* muted icons/text */
+  --color-wolf: #777777;         /* secondary text */
+  --color-eel: #4b4b4b;          /* primary text */
+  --color-macaw: #1cb0f6;
+  --color-whale: #1899d6;
+  --color-bee: #ffc800;
+  --color-turtle: #00cd9c;       /* unit banner */
+  --color-turtle-dark: #00a881;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-eel);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.92); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.animate-pop { animation: pop 380ms ease-out both; }
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.animate-bob { animation: bob 1.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop {
+    animation-duration: 1ms;
+  }
+  .animate-bob {
+    animation: none !important;
+  }
+}
