@@ -111,7 +111,7 @@ function TravelBanner({ notchX, onOpen, onDismiss }) {
   );
 }
 
-function CoursesMenu({ onClose, onPick }) {
+function CoursesMenu({ onClose, onPick, tryId }) {
   const ref = useRef(null);
   useEffect(() => {
     // The parent also holds the flag button, so tapping it toggles instead of close-then-reopen.
@@ -144,6 +144,11 @@ function CoursesMenu({ onClose, onPick }) {
         >
           <Flag course={c} className="h-6 w-8" />
           {c.name}
+          {c.id === tryId && (
+            <span className="ml-auto rounded-lg bg-[#ce82ff] px-2 py-0.5 text-[11px] font-black tracking-[0.08em] text-white">
+              TRY IT
+            </span>
+          )}
         </button>
       ))}
     </div>
@@ -217,7 +222,9 @@ function PathNode({ node }) {
   );
 }
 
-export default function Home() {
+// onStartItalian: when set (the combined build in onboarding-reasons), picking
+// Italian opens the Italian onboarding prototype.
+export default function Home({ onStartItalian }) {
   const [trip, setTrip] = useState(loadTrip);
   const [onboarding, setOnboarding] = useState(false);
   const [bannerOpen, setBannerOpen] = useState(true);
@@ -300,9 +307,11 @@ export default function Home() {
           {menuOpen && (
             <CoursesMenu
               onClose={() => setMenuOpen(false)}
+              tryId={onStartItalian && "it"}
               onPick={(c) => {
                 setMenuOpen(false);
-                if (c.id !== "fr") showToast(`${c.name} isn't part of this demo`);
+                if (c.id === "it" && onStartItalian) onStartItalian();
+                else if (c.id !== "fr") showToast(`${c.name} isn't part of this demo`);
               }}
             />
           )}

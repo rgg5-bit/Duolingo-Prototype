@@ -9,6 +9,11 @@ Built with React 18 + Vite + Tailwind CSS v4.
 **Live demo:** https://rgg5-bit.github.io/Duolingo-Prototype/. This is rebuilt
 automatically by `.github/workflows/deploy-pages.yml` on every push to `main`.
 
+**Combined with Traveler mode:** this build opens on the Traveler mode homepage
+from `../traveler-mode`. Tap the course flag (top left) and pick **Italian** to
+open this onboarding, and use its back arrow to return to the homepage
+(see `src/main.jsx`).
+
 ## Run it
 
 Requires Node.js 18+.

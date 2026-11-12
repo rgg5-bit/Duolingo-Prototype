@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "postbuild": "npm --prefix ../traveler-mode ci && npm --prefix ../traveler-mode run build -- --outDir ../onboarding-reasons/dist/traveler-mode",
     "preview": "vite preview"
   },
   "dependencies": {
