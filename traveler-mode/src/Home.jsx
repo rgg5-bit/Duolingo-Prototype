@@ -222,8 +222,8 @@ function PathNode({ node }) {
   );
 }
 
-// onStartItalian: when set (the combined build in onboarding-reasons), picking
-// Italian opens the Italian onboarding prototype.
+// onStartItalian: when set (the combined build in onboarding-reasons), the
+// Traveler mode button and picking Italian open the Italian onboarding prototype.
 export default function Home({ onStartItalian }) {
   const [trip, setTrip] = useState(loadTrip);
   const [onboarding, setOnboarding] = useState(false);
@@ -259,9 +259,14 @@ export default function Home({ onStartItalian }) {
     return () => window.removeEventListener("resize", place);
   }, [onboarding]);
 
-  // Off → start the destination/flight onboarding. On → switch straight back.
+  // Off → start the destination/flight onboarding (or, in the combined build, the
+  // Italian onboarding prototype). On → switch straight back.
   function toggleTravel() {
     setBannerOpen(false);
+    if (!travelMode && onStartItalian) {
+      onStartItalian();
+      return;
+    }
     if (!travelMode) {
       setOnboarding(true);
       window.scrollTo(0, 0);
