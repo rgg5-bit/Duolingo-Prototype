@@ -21,6 +21,7 @@ import {
   WitchBadge,
 } from "./Icons.jsx";
 import {
+  ACTIVE_COURSE,
   COURSES,
   DESTINATIONS,
   FLIGHT_TIMES,
@@ -139,7 +140,7 @@ function CoursesMenu({ onClose, onPick }) {
           role="menuitem"
           onClick={() => onPick(c)}
           className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[16px] font-extrabold outline-none hover:bg-polar focus-visible:bg-polar ${
-            c.id === "fr" ? "bg-[#ddf4ff] text-macaw" : "text-eel"
+            c.id === ACTIVE_COURSE ? "bg-[#ddf4ff] text-macaw" : "text-eel"
           }`}
         >
           <Flag course={c} className="h-6 w-8" />
@@ -231,7 +232,7 @@ export default function Home() {
 
   const travelMode = trip !== null;
   const unit = travelMode ? travelUnit(trip) : STANDARD_UNIT;
-  const course = COURSES[0];
+  const course = COURSES.find((c) => c.id === ACTIVE_COURSE);
 
   function showToast(message) {
     clearTimeout(toastTimer.current);
@@ -302,7 +303,7 @@ export default function Home() {
               onClose={() => setMenuOpen(false)}
               onPick={(c) => {
                 setMenuOpen(false);
-                if (c.id !== "fr") showToast(`${c.name} isn't part of this demo`);
+                if (c.id !== ACTIVE_COURSE) showToast(`${c.name} isn't part of this demo`);
               }}
             />
           )}

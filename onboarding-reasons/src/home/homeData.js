@@ -1,8 +1,13 @@
-// Courses shown in the flag dropdown. Only French is "active" in this demo.
+import { getDestination } from "../destinations.js";
+
+// Courses shown in the flag dropdown. Only Italian (the onboarding course) is
+// "active" in this demo.
+export const ACTIVE_COURSE = "it";
+
 export const COURSES = [
-  { id: "fr", name: "French", flag: ["#1cb0f6", "#ffffff", "#ff4b4b"], xp: 6 },
+  { id: "fr", name: "French", flag: ["#1cb0f6", "#ffffff", "#ff4b4b"] },
   { id: "es", name: "Spanish", flag: ["#ff4b4b", "#ffc800", "#ff4b4b"], horizontal: true },
-  { id: "it", name: "Italian", flag: ["#58cc02", "#ffffff", "#ff4b4b"] },
+  { id: "it", name: "Italian", flag: ["#58cc02", "#ffffff", "#ff4b4b"], xp: 6 },
   { id: "de", name: "German", flag: ["#4b4b4b", "#ff4b4b", "#ffc800"], horizontal: true },
   { id: "ja", name: "Japanese", flag: ["#ffffff"], dot: "#ff4b4b" },
 ];
@@ -33,8 +38,15 @@ export const FLIGHT_TIMES = [
   { id: "unbooked", emoji: "🤔", label: "I haven't booked yet", short: "someday soon" },
 ];
 
+// Trips picked on the onboarding travel map use that map's ids ("peru", "japan", ...).
+function fromTravelMap(id) {
+  const d = getDestination(id);
+  return d && { city: d.city, country: d.name };
+}
+
 export function travelUnit(trip) {
-  const dest = DESTINATIONS.find((d) => d.id === trip.destination) ?? DESTINATIONS[0];
+  const dest =
+    DESTINATIONS.find((d) => d.id === trip.destination) ?? fromTravelMap(trip.destination) ?? DESTINATIONS[0];
   return {
     section: `TRAVELER MODE · ${dest.country.toUpperCase()}`,
     title: `Survive your first day in ${dest.city}`,

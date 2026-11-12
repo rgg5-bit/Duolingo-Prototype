@@ -2,7 +2,9 @@
 
 A recreation of Duolingo's *"Now let's find the best place to start!"* onboarding
 screen (Italian course), plus a new feature: users can tell Duo **why** they're
-learning, and Duo personalizes its message.
+learning, and Duo personalizes its message. Picking a start option (or
+finishing a lesson) leads to a recreation of Duolingo's **home page** with a new
+**Traveler mode** button.
 
 Built with React 18 + Vite + Tailwind CSS v4.
 
@@ -24,7 +26,8 @@ laptop, open DevTools → device toolbar (Ctrl+Shift+M) and pick an iPhone size.
 
 ## Demo script
 
-1. Tap either start card: the blue selection moves, and a toast shows what would happen next.
+1. Tap either start card to go to the home page (see **Home page and Traveler mode** below).
+   The browser's back button returns to onboarding.
 2. Tap **Why are you learning Italian?** to open the bottom sheet.
 3. **Continue** stays disabled until you pick at least one reason. Pick several,
    and try **Other** to type a custom reason.
@@ -71,9 +74,30 @@ The **Demo controls** at the bottom let you move time forward.
    streaks, or a hold that runs out, simply end. **Reset to 45-day streak**
    starts the demo over.
 
+### Home page and Traveler mode
+
+The home page uses Duolingo's light theme; onboarding stays dark. It opens at
+`#home`, from either start card or from **Back home** on a lesson's finish screen.
+
+1. If you picked **Travel** with a destination during onboarding, Traveler mode is
+   already on for it ("Traveler mode · Peru / Survive your first day in Cusco").
+2. Otherwise, the **✈️** button sits next to the course flag, with a **NEW! Traveler mode**
+   banner pointing at it. Hover the button to see the iridescent sheen that signals
+   you're about to enter Traveler mode.
+3. Click it (or the banner) to start Traveler mode onboarding:
+   - **Where is your next destination?** Pick a city; it moves straight on.
+   - **When is your flight?** Pick a timeframe, then **Continue**.
+   The back arrow goes back a step (or home from the first step).
+4. Back on the homepage, a rainbow wash sweeps the screen and the unit banner turns
+   iridescent with your trip ("Traveler mode · Japan / Survive your first day in Tokyo").
+5. Click the ✈️ button again to go back to the regular course.
+6. Tap the flag to see all courses.
+7. Refresh the page: your trip stays saved (in `localStorage`).
+
 ## Files
 
-- `src/App.jsx`: the onboarding screen
+- `src/App.jsx`: the onboarding screen; switches to the home page at `#home`
+
 - `src/ReasonsSheet.jsx`: the multi-select bottom sheet
 - `src/LessonsSheet.jsx`: the "what do you want to learn first?" lesson picker
 - `src/LessonPlayer.jsx`: the lesson screen (exercises, feedback, finish screen)
@@ -86,3 +110,8 @@ The **Demo controls** at the bottom let you move time forward.
 - `src/worldShapes.js`: continent outlines, smoothed into cartoon shapes
 - `src/reasons.js`: reason list, Duo's personalized lines, localStorage helpers
 - `src/Icons.jsx`: hand-drawn SVGs (Duo, book, compass, etc.)
+- `src/index.css`: both color themes, animations, and the iridescent Traveler mode effect
+- `src/home/Home.jsx`: home/learning path with the Traveler mode button and course menu
+- `src/home/TravelOnboarding.jsx`: the destination and flight-date onboarding screens
+- `src/home/homeData.js`: courses, destinations, flight times, path nodes, localStorage helpers
+- `src/home/Icons.jsx`: hand-drawn SVGs for the home page (flame, gem, path art, nav icons, etc.)

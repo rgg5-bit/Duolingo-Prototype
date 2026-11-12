@@ -8,7 +8,8 @@ const XP_PER_EXERCISE = 10;
 
 // A short Duolingo-style lesson: multiple choice, matching pairs and
 // word-bank sentences. Missed exercises come back at the end.
-export default function LessonPlayer({ lessonId, nextId, streakNote, onComplete, onNext, onClose }) {
+// onHome (optional) is where "Back home" on the finish screen goes; quitting uses onClose.
+export default function LessonPlayer({ lessonId, nextId, streakNote, onComplete, onNext, onClose, onHome }) {
   const lesson = getLesson(lessonId);
   const exercises = useMemo(() => buildExercises(lessonId), [lessonId]);
 
@@ -106,7 +107,7 @@ export default function LessonPlayer({ lessonId, nextId, streakNote, onComplete,
             streakNote={streakNote}
             nextLesson={nextId ? getLesson(nextId) : null}
             onNext={() => onNext(nextId)}
-            onClose={onClose}
+            onClose={onHome ?? onClose}
           />
         ) : (
           <>

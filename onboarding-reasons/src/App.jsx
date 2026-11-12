@@ -32,6 +32,12 @@ import LessonsSheet from "./LessonsSheet.jsx";
 import ReasonsSheet from "./ReasonsSheet.jsx";
 import { duoLine, getReason, loadSelection, saveSelection } from "./reasons.js";
 import { PRESSABLE } from "./styles.js";
+import Home from "./home/Home.jsx";
+import { loadTrip, saveTrip } from "./home/homeData.js";
+
+// The home page lives at #home, so refresh keeps you there and the browser's
+// back button returns to onboarding.
+const onHomePage = () => window.location.hash === "#home";
 
 const START_OPTIONS = [
   {
@@ -40,14 +46,12 @@ const START_OPTIONS = [
     subtitle: "Start from scratch!",
     Icon: BookIcon,
     badge: "RECOMMENDED",
-    toast: "Starting Unit 1 from scratch…",
   },
   {
     id: "placement",
     title: "Already know some Italian?",
     subtitle: "Let's find your starting point!",
     Icon: CompassIcon,
-    toast: "Loading your placement test…",
   },
 ];
 
@@ -69,6 +73,23 @@ export default function App() {
   const [playing, setPlaying] = useState(null); // lesson id being played
   const [toast, setToast] = useState(null);
   const toastTimer = useRef();
+  const [home, setHome] = useState(onHomePage);
+
+  useEffect(() => {
+    const sync = () => {
+      setHome(onHomePage());
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
+
+  function goHome() {
+    // A trip picked on the onboarding travel map turns on Traveler mode for it.
+    const trip = selection?.trips?.[0];
+    if (trip && !loadTrip()) saveTrip({ destination: trip, flight: null });
+    window.location.hash = "home";
+  }
 
   // Streak: check for a missed day as soon as the app opens.
   const [initialStreak] = useState(() => evaluate(loadStreak()));
@@ -127,6 +148,14 @@ export default function App() {
     setLessons(next);
     saveLessons(next);
     setLessonsOpen(false);
+  }
+
+  if (home) {
+    return (
+      <div className="min-h-dvh bg-paper text-eel">
+        <Home />
+      </div>
+    );
   }
 
   return (
@@ -299,12 +328,12 @@ export default function App() {
           </button>
         )}
 
-        {START_OPTIONS.map(({ id, title, subtitle: baseSubtitle, Icon, badge, toast: baseToast }) => {
+        {START_OPTIONS.map(({ id, title, subtitle: baseSubtitle, Icon, badge }) => {
           const selected = startChoice === id;
-          // Starting from scratch begins with the user's first picked lesson.
+          // Starting from scratch begins with the user's first picked lesson;
+          // otherwise both options head to the home page.
           const custom = id === "scratch" && firstLesson;
           const subtitle = custom ? `Start with ${firstLesson.emoji} ${firstLesson.label}!` : baseSubtitle;
-          const message = custom ? `Starting with ${firstLesson.emoji} ${firstLesson.label}…` : baseToast;
           return (
             <button
               key={id}
@@ -313,7 +342,7 @@ export default function App() {
               onClick={() => {
                 setStartChoice(id);
                 if (custom) setPlaying(upNextId);
-                else showToast(message);
+                else goHome();
               }}
               className={`relative flex items-center gap-5 rounded-2xl px-5 py-5 text-left ${PRESSABLE} ${
                 selected ? "border-sky-line bg-panel" : "border-line hover:bg-panel/50"
@@ -442,6 +471,11 @@ export default function App() {
           onComplete={handleLessonComplete}
           onNext={(id) => setPlaying(id)}
           onClose={() => setPlaying(null)}
+          onHome={() => {
+            setPlaying(null);
+            // A streak screen (e.g. "Streak restored!") gets shown first.
+            if (!streakScreen) goHome();
+          }}
         />
       )}
 
