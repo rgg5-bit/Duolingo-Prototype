@@ -59,7 +59,8 @@ function screenFor(event) {
   return null; // "extended" shows up on the lesson's finish screen instead
 }
 
-export default function App() {
+// onBack: when set (the combined build), the back arrow returns to the homepage.
+export default function App({ onBack }) {
   const [selection, setSelection] = useState(loadSelection);
   const [startChoice, setStartChoice] = useState("scratch");
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -135,7 +136,7 @@ export default function App() {
         <button
           type="button"
           aria-label="Back"
-          onClick={() => showToast("Back isn't part of this demo")}
+          onClick={() => (onBack ? onBack() : showToast("Back isn't part of this demo"))}
           className="-ml-2 rounded-xl p-2 text-fog hover:text-snow focus-visible:ring-4 focus-visible:ring-sky/40 outline-none"
         >
           <BackArrow className="h-7 w-7" />

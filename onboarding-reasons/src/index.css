@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "../../traveler-mode/src/traveler.css";
+@source "../../traveler-mode/src";
 
 @theme {
   --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
@@ -32,6 +34,12 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Behind the Traveler mode homepage (see main.jsx). */
+body.light-page {
+  background: var(--color-paper);
+  color: var(--color-eel);
 }
 
 @keyframes sheet-up {
