@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckIcon, CloseIcon, DuoOwl, SpeakerIcon } from "./Icons.jsx";
+import { course } from "./courses.js";
 import { buildExercises, shuffle, speak } from "./lessonContent.js";
 import { getLesson } from "./lessons.js";
 import { PRESSABLE } from "./styles.js";
@@ -37,7 +38,7 @@ export default function LessonPlayer({ lessonId, nextId, streakNote, onComplete,
     };
   }, []);
 
-  // Read the new Italian word out loud when a "what does this mean?" card appears.
+  // Read the new word out loud when a "what does this mean?" card appears.
   useEffect(() => {
     if (ex?.speak && status === "answering") speak(ex.speak);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,7 +48,7 @@ export default function LessonPlayer({ lessonId, nextId, streakNote, onComplete,
     setStatus(correct ? "correct" : "wrong");
     if (correct) {
       setSolved((n) => n + 1);
-      if (ex.type === "build") speak(ex.italian);
+      if (ex.type === "build") speak(ex.sentence);
       if (ex.speakAnswer) speak(ex.answer);
     } else {
       setMistakes((n) => n + 1);
@@ -187,7 +188,7 @@ function ChoiceExercise({ ex, picked, locked, onPick }) {
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky text-ink">
             <SpeakerIcon className="h-6 w-6" />
           </span>
-          <span lang="it" className="text-[22px] font-extrabold text-snow">
+          <span lang={course().id} className="text-[22px] font-extrabold text-snow">
             {ex.word}
           </span>
         </button>
@@ -203,7 +204,7 @@ function ChoiceExercise({ ex, picked, locked, onPick }) {
               aria-pressed={selected}
               onClick={() => {
                 onPick(opt);
-                if (!ex.word) speak(opt); // Italian options: hear them as you tap
+                if (!ex.word) speak(opt); // course-language options: hear them as you tap
               }}
               className={`flex items-center gap-4 rounded-2xl px-4 py-3.5 text-left ${PRESSABLE} ${
                 selected ? "border-sky-line bg-panel" : "border-line hover:bg-panel/50"
@@ -217,7 +218,7 @@ function ChoiceExercise({ ex, picked, locked, onPick }) {
                 {i + 1}
               </span>
               <span
-                lang={ex.word ? "en" : "it"}
+                lang={ex.word ? "en" : course().id}
                 className={`text-[17px] font-extrabold ${selected ? "text-sky" : "text-snow"}`}
               >
                 {opt}
@@ -254,7 +255,7 @@ function BuildExercise({ ex, built, locked, onChange }) {
             type="button"
             disabled={locked}
             onClick={() => onChange(built.filter((x) => x !== i))}
-            lang="it"
+            lang={course().id}
             className={`${TILE} border-line bg-ink text-snow outline-none focus-visible:ring-4 focus-visible:ring-sky/40`}
           >
             {ex.bank[i]}
@@ -275,7 +276,7 @@ function BuildExercise({ ex, built, locked, onChange }) {
                 onChange([...built, i]);
                 speak(word);
               }}
-              lang="it"
+              lang={course().id}
               className={`${TILE} outline-none focus-visible:ring-4 focus-visible:ring-sky/40 ${
                 used ? "border-line bg-line text-transparent" : "border-line bg-ink text-snow hover:bg-panel/50"
               }`}
@@ -295,7 +296,7 @@ function MatchExercise({ ex, onMistake, onDone }) {
   const answerFor = useMemo(() => Object.fromEntries(ex.pairs), [ex]);
 
   const [sel, setSel] = useState({ it: null, en: null });
-  const [matched, setMatched] = useState([]); // Italian words matched so far
+  const [matched, setMatched] = useState([]); // course-language words matched so far
   const [wrong, setWrong] = useState(null); // { it, en } flashing red
 
   function pick(side, value) {
@@ -327,7 +328,7 @@ function MatchExercise({ ex, onMistake, onDone }) {
         key={value}
         type="button"
         disabled={isMatched}
-        lang={side}
+        lang={side === "it" ? course().id : side}
         onClick={() => pick(side, value)}
         className={`min-h-[56px] rounded-2xl px-3 py-2 text-[16px] font-extrabold ${PRESSABLE} ${
           isMatched
@@ -375,7 +376,7 @@ function Footer({ status, ex, ready, onCheck, onContinue }) {
   }
 
   const correct = status === "correct";
-  const answer = ex.type === "build" ? ex.italian : ex.answer;
+  const answer = ex.type === "build" ? ex.sentence : ex.answer;
   return (
     <div
       role="status"
@@ -393,7 +394,7 @@ function Footer({ status, ex, ready, onCheck, onContinue }) {
       </div>
       {!correct && (
         <p className="mt-2 text-[16px] font-bold text-cardinal">
-          Correct answer: <span lang="it" className="font-extrabold">{answer}</span>
+          Correct answer: <span lang={course().id} className="font-extrabold">{answer}</span>
           <span className="block text-[14px] opacity-80">You'll see this one again at the end.</span>
         </p>
       )}

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PRESSABLE } from "./styles.js";
 import { CloseIcon } from "./Icons.jsx";
-import { LESSONS, MAX_LESSONS, suggestedLessons } from "./lessons.js";
+import { course } from "./courses.js";
+import { LESSONS, MAX_LESSONS, lessonSample, suggestedLessons } from "./lessons.js";
 
 const CLOSE_MS = 200;
 
@@ -142,8 +143,8 @@ export default function LessonsSheet({ initial, reasonIds, onSave, onClose }) {
                         </span>
                       )}
                     </span>
-                    <span lang="it" className="text-[14px] font-bold italic text-fog">
-                      “{l.sample}”
+                    <span lang={course().id} className="text-[14px] font-bold italic text-fog">
+                      “{lessonSample(l.id)}”
                     </span>
                   </span>
                   <span

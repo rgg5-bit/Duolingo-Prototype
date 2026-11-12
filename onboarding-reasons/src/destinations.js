@@ -1,6 +1,6 @@
 import { project } from "./worldShapes.js";
 
-export const COURSE_LANGUAGE = "Italian";
+import { course } from "./courses.js";
 
 // Each region's camera box is [x, y, width, height] in map units, all at the
 // same 8:5 aspect as the map frame so zooming never distorts.
@@ -73,7 +73,8 @@ export function isDestination(id) {
 // Unique languages across the chosen trips, the course language first.
 export function languagesFor(tripIds) {
   const set = new Set(tripIds.flatMap((id) => byId[id]?.languages ?? []));
-  return [...set].sort((a, b) => (b === COURSE_LANGUAGE) - (a === COURSE_LANGUAGE));
+  const name = course().name;
+  return [...set].sort((a, b) => (b === name) - (a === name));
 }
 
 export function tripPhrase(tripIds) {

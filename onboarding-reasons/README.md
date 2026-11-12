@@ -10,9 +10,12 @@ Built with React 18 + Vite + Tailwind CSS v4.
 automatically by `.github/workflows/deploy-pages.yml` on every push to `main`.
 
 **Combined with Traveler mode:** this build opens on the Traveler mode homepage
-from `../traveler-mode`. Tap the course flag (top left) and pick **Italian** to
-open this onboarding, and use its back arrow to return to the homepage
-(see `src/main.jsx`).
+from `../traveler-mode`. Pick a language with the course flag (top left), then
+tap the **Traveler mode** button to open this onboarding in that language
+(French, Spanish, Italian, German or Japanese). Its back arrow returns to the
+homepage (see `src/main.jsx`). Each language's words, sentences and sample
+phrases live in `src/courses.js`, and answers and progress are saved per language.
+Run on its own, the onboarding uses Italian.
 
 ## Run it
 
