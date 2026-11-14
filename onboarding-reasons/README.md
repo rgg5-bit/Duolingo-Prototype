@@ -139,6 +139,15 @@ skipping ahead will keep or miss a day.
    streaks, or a hold that runs out, simply end. **Reset to 45-day streak**
    starts the demo over.
 
+### Traveler guide: "Prep like a local"
+
+On the homepage, tap the book icon on the unit banner to open the traveler
+guide for your trip (or, with no trip, the course language's home country). It
+has cultural norms, slang words (tap one to hear it), signs of respect, do's
+and don'ts. Guides are written for Spain, Mexico, Argentina, Colombia, France,
+Québec, Italy, Germany, Austria and Japan; other places get travel basics plus
+everyday words. The content lives in `src/guides.js`. Check it before presenting.
+
 ## Files
 
 - `src/App.jsx`: the onboarding screen
@@ -149,6 +158,8 @@ skipping ahead will keep or miss a day.
 - `src/lessons.js`: lesson topics, sample phrases, suggestions per reason, localStorage helpers
 - `src/streak.js`: streak rules (on hold, friend invites, comeback challenge, restore)
 - `src/StreakScreens.jsx`: streak on hold, save-your-streak, restored and ended screens
+- `src/TravelerGuide.jsx`: the "Prep like a local" traveler guide page
+- `src/guides.js`: guide content per country (norms, slang, respect, do's, don'ts)
 - `src/TravelMap.jsx`: the zoomable travel map
 - `src/destinations.js`: destinations, their languages, and each continent's zoom area
 - `src/worldShapes.js`: continent outlines, smoothed into cartoon shapes

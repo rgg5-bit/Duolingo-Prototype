@@ -15,6 +15,7 @@ import { loadSelection, saveSelection } from "./reasons.js";
 import { evaluate, loadStreak, saveStreak } from "./streak.js";
 import { StreakLost, StreakOnHold } from "./StreakScreens.jsx";
 import { buildTrail, markPracticed } from "./trail.js";
+import TravelerGuide from "./TravelerGuide.jsx";
 import TripCountdown from "./TripCountdown.jsx";
 import "./index.css";
 
@@ -95,7 +96,7 @@ function Root() {
 
   // The homepage is light; the course picker and onboarding are dark.
   useEffect(() => {
-    document.body.classList.toggle("light-page", screen === "home");
+    document.body.classList.toggle("light-page", screen === "home" || screen === "guide");
     window.scrollTo(0, 0);
   }, [screen, step]);
 
@@ -197,6 +198,10 @@ function Root() {
     );
   }
 
+  if (screen === "guide") {
+    return <TravelerGuide onBack={back} />;
+  }
+
   const trail = buildTrail();
   const streak = loadStreak();
   const trip = loadTrip();
@@ -238,6 +243,7 @@ function Root() {
           : undefined
       }
       onBack={back}
+      onOpenGuide={() => go({ screen: "guide" })}
       onCourseChange={chooseCourse}
       onStartOnboarding={(id) => {
         // The homepage's ✈️ button: go through the questions to set up a trip,

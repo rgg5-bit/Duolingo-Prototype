@@ -226,8 +226,9 @@ function PathNode({ node }) {
 // with the user's own (branching) trail; onCourseChange(id) reports course switches;
 // onBack shows a back arrow that returns to the previous screen; streakSlot
 // replaces the sample "0" streak; travelSlot shows above the unit banner while
-// Traveler mode is on (the trip countdown).
-export default function Home({ onStartOnboarding, renderPath, onCourseChange, onBack, streakSlot, travelSlot }) {
+// Traveler mode is on (the trip countdown); onOpenGuide opens the "Prep like a
+// local" traveler guide from the unit banner's guidebook button.
+export default function Home({ onStartOnboarding, renderPath, onCourseChange, onBack, streakSlot, travelSlot, onOpenGuide }) {
   const [courseId, setCourseId] = useState(loadCourse);
   const [trip, setTrip] = useState(loadTrip);
   const [onboarding, setOnboarding] = useState(false);
@@ -376,8 +377,8 @@ export default function Home({ onStartOnboarding, renderPath, onCourseChange, on
           </div>
           <button
             type="button"
-            aria-label="Guidebook"
-            onClick={() => showToast("Opening the guidebook…")}
+            aria-label={onOpenGuide ? "Open the traveler guide" : "Guidebook"}
+            onClick={() => (onOpenGuide ? onOpenGuide() : showToast("Opening the guidebook…"))}
             className="flex w-[64px] items-center justify-center border-l-2 border-black/10 outline-none hover:bg-black/5"
           >
             <GuidebookIcon className="h-8 w-8" />
