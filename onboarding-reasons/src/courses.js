@@ -17,6 +17,7 @@ export const COURSES = {
       cafe: "Un cappuccino, per favore.",
       restaurant: "Il conto, per favore.",
       directions: "Dov'è la stazione?",
+      transport: "Un biglietto, per favore.",
       hotel: "Ho una prenotazione.",
       shopping: "Quanto costa?",
       numbers: "Uno, due, tre…",
@@ -44,6 +45,10 @@ export const COURSES = {
       directions: {
         words: [["dov'è", "where is"], ["la stazione", "the station"], ["a destra", "to the right"], ["a sinistra", "to the left"]],
         phrases: [["Dov'è la stazione?", "Where is the station?"], ["Gira a sinistra.", "Turn left."]],
+      },
+      transport: {
+        words: [["il biglietto", "the ticket"], ["la metro", "the metro"], ["l'autobus", "the bus"], ["il taxi", "the taxi"]],
+        phrases: [["Un biglietto, per favore.", "A ticket, please."], ["Dov'è la fermata dell'autobus?", "Where is the bus stop?"]],
       },
       hotel: {
         words: [["la camera", "the room"], ["la chiave", "the key"], ["la prenotazione", "the reservation"], ["il bagno", "the bathroom"]],
@@ -83,6 +88,7 @@ export const COURSES = {
       cafe: "Un café, s'il vous plaît.",
       restaurant: "L'addition, s'il vous plaît.",
       directions: "Où est la gare ?",
+      transport: "Un billet, s'il vous plaît.",
       hotel: "J'ai une réservation.",
       shopping: "Combien ça coûte ?",
       numbers: "Un, deux, trois…",
@@ -110,6 +116,10 @@ export const COURSES = {
       directions: {
         words: [["où est", "where is"], ["la gare", "the station"], ["à droite", "to the right"], ["à gauche", "to the left"]],
         phrases: [["Où est la gare ?", "Where is the station?"], ["Tournez à gauche.", "Turn left."]],
+      },
+      transport: {
+        words: [["le billet", "the ticket"], ["le métro", "the metro"], ["le bus", "the bus"], ["le taxi", "the taxi"]],
+        phrases: [["Un billet, s'il vous plaît.", "A ticket, please."], ["Où est l'arrêt de bus ?", "Where is the bus stop?"]],
       },
       hotel: {
         words: [["la chambre", "the room"], ["la clé", "the key"], ["la réservation", "the reservation"], ["la salle de bain", "the bathroom"]],
@@ -149,6 +159,7 @@ export const COURSES = {
       cafe: "Un café, por favor.",
       restaurant: "La cuenta, por favor.",
       directions: "¿Dónde está la estación?",
+      transport: "Un billete, por favor.",
       hotel: "Tengo una reserva.",
       shopping: "¿Cuánto cuesta?",
       numbers: "Uno, dos, tres…",
@@ -176,6 +187,10 @@ export const COURSES = {
       directions: {
         words: [["dónde está", "where is"], ["la estación", "the station"], ["a la derecha", "to the right"], ["a la izquierda", "to the left"]],
         phrases: [["¿Dónde está la estación?", "Where is the station?"], ["Gira a la izquierda.", "Turn left."]],
+      },
+      transport: {
+        words: [["el billete", "the ticket"], ["el metro", "the metro"], ["el autobús", "the bus"], ["el taxi", "the taxi"]],
+        phrases: [["Un billete, por favor.", "A ticket, please."], ["¿Dónde está la parada de autobús?", "Where is the bus stop?"]],
       },
       hotel: {
         words: [["la habitación", "the room"], ["la llave", "the key"], ["la reserva", "the reservation"], ["el baño", "the bathroom"]],
@@ -215,6 +230,7 @@ export const COURSES = {
       cafe: "Einen Kaffee, bitte.",
       restaurant: "Die Rechnung, bitte.",
       directions: "Wo ist der Bahnhof?",
+      transport: "Eine Fahrkarte, bitte.",
       hotel: "Ich habe eine Reservierung.",
       shopping: "Wie viel kostet das?",
       numbers: "Eins, zwei, drei…",
@@ -242,6 +258,10 @@ export const COURSES = {
       directions: {
         words: [["wo ist", "where is"], ["der Bahnhof", "the station"], ["rechts", "to the right"], ["links", "to the left"]],
         phrases: [["Wo ist der Bahnhof?", "Where is the station?"], ["Biegen Sie links ab.", "Turn left."]],
+      },
+      transport: {
+        words: [["die Fahrkarte", "the ticket"], ["die U-Bahn", "the subway"], ["der Bus", "the bus"], ["das Taxi", "the taxi"]],
+        phrases: [["Eine Fahrkarte, bitte.", "A ticket, please."], ["Wo ist die Bushaltestelle?", "Where is the bus stop?"]],
       },
       hotel: {
         words: [["das Zimmer", "the room"], ["der Schlüssel", "the key"], ["die Reservierung", "the reservation"], ["das Bad", "the bathroom"]],
@@ -281,6 +301,7 @@ export const COURSES = {
       cafe: "コーヒーをください。",
       restaurant: "おかいけいをおねがいします。",
       directions: "えきはどこですか？",
+      transport: "きっぷをください。",
       hotel: "よやくがあります。",
       shopping: "いくらですか？",
       numbers: "いち、に、さん…",
@@ -308,6 +329,10 @@ export const COURSES = {
       directions: {
         words: [["どこ", "where"], ["えき", "station"], ["みぎ", "right"], ["ひだり", "left"]],
         phrases: [["えき は どこ です か？", "Where is the station?"], ["ひだり に まがって ください。", "Please turn left."]],
+      },
+      transport: {
+        words: [["きっぷ", "ticket"], ["ちかてつ", "subway"], ["バス", "bus"], ["タクシー", "taxi"]],
+        phrases: [["きっぷ を ください。", "A ticket, please."], ["バスてい は どこ です か？", "Where is the bus stop?"]],
       },
       hotel: {
         words: [["へや", "room"], ["かぎ", "key"], ["よやく", "reservation"], ["トイレ", "bathroom"]],

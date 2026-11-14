@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import StreakPopover from "./StreakPopover.jsx";
 import {
   BackArrow,
@@ -28,6 +28,7 @@ import { course } from "./courses.js";
 import { getDestination, languagesFor } from "./destinations.js";
 import { getLesson, lessonLine, loadLessons, saveLessons } from "./lessons.js";
 import { loadCompleted, saveCompleted } from "./lessonContent.js";
+import { randomFact } from "./facts.js";
 import LessonPlayer from "./LessonPlayer.jsx";
 import LessonsSheet from "./LessonsSheet.jsx";
 import ReasonsSheet from "./ReasonsSheet.jsx";
@@ -136,6 +137,9 @@ export default function App({ onBack, startLesson = null, onLessonsDone, openStr
     setStreakScreen(null);
     if (goHomeAfter.current) onLessonsDone(finishedOne.current);
   }
+
+  // A travel fact for this lesson's finish screen (picked once per lesson).
+  const lessonFact = useMemo(() => (playing ? randomFact() : null), [playing]);
 
   // Line shown under "Lesson complete!".
   const streakNote = streak.hold
@@ -515,6 +519,7 @@ export default function App({ onBack, startLesson = null, onLessonsDone, openStr
           lessonId={playing}
           nextId={nextAfter(playing)}
           streakNote={streakNote}
+          fact={lessonFact}
           onComplete={handleLessonComplete}
           onNext={(id) => setPlaying(id)}
           onClose={closeLesson}

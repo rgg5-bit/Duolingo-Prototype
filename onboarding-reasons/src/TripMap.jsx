@@ -354,7 +354,7 @@ export default function TripMap({ lang, langName, value, onChange }) {
 
         {/* Legend */}
         {region !== "world" && (
-          <div className="pointer-events-none absolute right-2 bottom-2 flex gap-1 rounded-lg bg-ink/75 px-1.5 py-1 text-[10px] font-black text-white">
+          <div className="pointer-events-none absolute right-2 bottom-2 flex gap-1 rounded-lg bg-black/60 px-1.5 py-1 text-[10px] font-black text-white">
             {[["50%+", 60], ["10%+", 20], ["1%+", 5], ["<1%", 0]].map(([t, v]) => (
               <span key={t} className="flex items-center gap-0.5">
                 <span className="h-2 w-2 rounded-full" style={{ background: heat(v).fill }} />

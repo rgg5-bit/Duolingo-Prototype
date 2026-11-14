@@ -6,6 +6,8 @@ import App from "./App.jsx";
 import BranchTrail from "./BranchTrail.jsx";
 import CoursePicker from "./CoursePicker.jsx";
 import { setCourse } from "./courses.js";
+import { factCountry, factsFor } from "./facts.js";
+import { getCountry } from "./speakers.js";
 import HomeStreak from "./HomeStreak.jsx";
 import { loadLessons, saveLessons } from "./lessons.js";
 import OnboardingQuestions, { EMPTY_DRAFT, daysUntil, loadLevel, saveLevel, todayIso } from "./OnboardingQuestions.jsx";
@@ -226,6 +228,8 @@ function Root() {
           ? ({ showToast }) => (
               <BranchTrail
                 trail={trail}
+                facts={factsFor()}
+                factPlace={getCountry(factCountry())?.name}
                 showToast={showToast}
                 onPlay={(id, mode) => openOnboarding({ id, mode })}
                 onPickMore={() => openOnboarding()}

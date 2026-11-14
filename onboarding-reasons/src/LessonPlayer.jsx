@@ -13,6 +13,7 @@ export default function LessonPlayer({
   lessonId,
   nextId,
   streakNote,
+  fact, // optional "Did you know?" travel fact for the finish screen
   homeLabel = "Back home",
   onComplete,
   onNext,
@@ -104,15 +105,16 @@ export default function LessonPlayer({
       role="dialog"
       aria-modal="true"
       aria-label={`${lesson.label} lesson`}
-      className="fixed inset-0 z-[60] flex justify-center bg-ink outline-none animate-fade-in"
+      className="fixed inset-0 z-[60] flex justify-center overflow-y-auto bg-ink outline-none animate-fade-in"
     >
-      <div className="flex w-full max-w-[420px] flex-col sm:border-x-2 sm:border-line">
+      <div className="flex min-h-full w-full max-w-[420px] flex-col sm:border-x-2 sm:border-line">
         {finished ? (
           <Finished
             lesson={lesson}
             xp={exercises.length * XP_PER_EXERCISE}
             accuracy={accuracy}
             streakNote={streakNote}
+            fact={fact}
             nextLesson={nextId ? getLesson(nextId) : null}
             onNext={() => onNext(nextId)}
             onClose={onClose}
@@ -421,7 +423,7 @@ function Footer({ status, ex, ready, onCheck, onContinue }) {
   );
 }
 
-function Finished({ lesson, xp, accuracy, streakNote, nextLesson, onNext, onClose, homeLabel }) {
+function Finished({ lesson, xp, accuracy, streakNote, fact, nextLesson, onNext, onClose, homeLabel }) {
   return (
     <div className="flex flex-1 flex-col items-center px-5 pt-16 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center animate-pop">
       <div className="w-[140px] animate-hop">
@@ -442,7 +444,14 @@ function Finished({ lesson, xp, accuracy, streakNote, nextLesson, onNext, onClos
         <Stat label="Accuracy" value={`${accuracy}%`} color="owl" />
       </div>
 
-      <div className="mt-auto flex w-full flex-col gap-3 pt-10">
+      {fact && (
+        <div className="mt-5 w-full rounded-2xl border-2 border-sky-line bg-sky/10 px-4 py-3 text-left">
+          <p className="text-[13px] font-black uppercase tracking-wide text-sky">💡 Did you know?</p>
+          <p className="mt-1 text-[15px] font-bold leading-snug text-snow">{fact}</p>
+        </div>
+      )}
+
+      <div className="mt-auto flex w-full flex-col gap-3 pt-8">
         {nextLesson && (
           <button
             type="button"

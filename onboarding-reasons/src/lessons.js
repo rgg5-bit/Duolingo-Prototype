@@ -34,6 +34,12 @@ export const LESSONS = [
     short: "asking for directions",
   },
   {
+    id: "transport",
+    emoji: "🚇",
+    label: "Getting around",
+    short: "getting around",
+  },
+  {
     id: "hotel",
     emoji: "🏨",
     label: "Checking into a hotel",
@@ -78,7 +84,7 @@ const SUGGESTED_BY_REASON = {
   business: ["intro", "numbers", "hobbies"],
   fun: ["cafe", "restaurant", "hobbies"],
   heritage: ["family", "greetings", "intro"],
-  travel: ["cafe", "directions", "hotel"],
+  travel: ["cafe", "transport", "directions", "hotel"],
   school: ["intro", "numbers", "time"],
   family: ["family", "intro", "greetings"],
   brain: ["numbers", "time", "intro"],

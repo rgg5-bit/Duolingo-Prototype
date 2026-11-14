@@ -288,7 +288,7 @@ export default function OnboardingQuestions({ draft, onDraft, step: rawStep, onS
                   min={todayIso()}
                   value={date}
                   onChange={(e) => update({ date: e.target.value, unbooked: false })}
-                  className="mt-1 w-full bg-transparent text-[18px] font-extrabold text-snow outline-none [color-scheme:dark]"
+                  className="mt-1 w-full bg-transparent text-[18px] font-extrabold text-snow outline-none [color-scheme:light]"
                 />
               </span>
             </label>

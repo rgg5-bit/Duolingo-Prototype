@@ -54,6 +54,16 @@ automatically by `.github/workflows/deploy-pages.yml` on every push to `main`.
   trail lesson) or, when the streak is on hold, **Save my streak**. Opening the
   homepage checks for a missed day, so a streak can go on hold there too.
 
+**Travel extras:**
+
+- **🚇 Getting around** lesson (tickets, metro, bus, taxi, "Where is the bus stop?")
+  in all 5 languages; it's suggested to travelers along with café, directions and hotel.
+- **Fun facts** (`src/facts.js`): short travel customs for the trip's country (or the
+  language's home country when there's no trip). One shows on each lesson's finish
+  screen ("💡 Did you know?"), and the trail has a "Before you go · Japan" card with
+  **Another fact →**. Like the speaker numbers, have someone verify them before
+  presenting.
+
 **Going back:** every screen (and every question) is a browser history entry, so
 the back arrow on each screen, including the homepage, and the phone or browser
 back gesture both return to the screen you were just on. Answers to the questions

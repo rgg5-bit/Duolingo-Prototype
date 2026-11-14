@@ -61,7 +61,7 @@ function BigFlame({ variant, value }) {
         className={`absolute inset-x-0 bottom-[-6px] text-center text-[40px] font-black ${
           variant === "frozen" ? "text-sky" : variant === "lit" ? "text-bee" : "text-fog"
         }`}
-        style={{ WebkitTextStroke: "6px #131f24", paintOrder: "stroke" }}
+        style={{ WebkitTextStroke: "6px var(--color-ink)", paintOrder: "stroke" }}
       >
         {value}
       </span>
