@@ -126,18 +126,9 @@ const SUBJECT_ICONS = {
   ),
 };
 
-// ---- Course list (order follows the real app) ----
+// ---- Course list: languages first, then the new subject courses ----
 
 const SECTIONS = [
-  {
-    id: "new",
-    title: "New Courses",
-    items: [
-      { id: "music", name: "Music" },
-      { id: "math", name: "Math" },
-      { id: "chess", name: "Chess" },
-    ],
-  },
   {
     id: "languages",
     title: "For English speakers",
@@ -159,6 +150,15 @@ const SECTIONS = [
       { id: "el", name: "Greek" },
       { id: "nl", name: "Dutch" },
       { id: "uk", name: "Ukrainian" },
+    ],
+  },
+  {
+    id: "new",
+    title: "New Courses",
+    items: [
+      { id: "music", name: "Music" },
+      { id: "math", name: "Math" },
+      { id: "chess", name: "Chess" },
     ],
   },
 ];
@@ -277,16 +277,11 @@ export default function CoursePicker({ initial, onContinue, onBack, onClose }) {
                         <CourseIcon id={item.id} />
                         <span
                           className={`flex-1 text-[19px] font-extrabold ${
-                            selected ? "text-sky" : ready ? "text-snow" : "text-snow/60"
+                            selected ? "text-sky" : "text-snow"
                           }`}
                         >
                           {item.name}
                         </span>
-                        {!ready && (
-                          <span className="rounded-md bg-line px-1.5 py-0.5 text-[11px] font-black tracking-[0.06em] text-fog">
-                            SOON
-                          </span>
-                        )}
                       </button>
                     </li>
                   );
