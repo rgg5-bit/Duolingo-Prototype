@@ -7,9 +7,10 @@
 
   /* Light mode everywhere (Duolingo's light palette). The names are from the old
      dark theme: "ink" is the page background and the text on colored buttons,
-     "snow" is the main text color. */
+     "snow" is the main text color. White on every screen, including the
+     homepage, which now also shows the streak panel and streak screens. */
   --color-ink: #ffffff;          /* page background, text on colored buttons */
-  --color-panel: #f7f7f7;        /* selected card / soft fill */
+  --color-panel: #ddf4ff;        /* selected card fill (light blue, like the app) */
   --color-line: #e5e5e5;         /* default borders */
   --color-muted: #afafaf;
   --color-snow: #4b4b4b;         /* primary text */
@@ -44,6 +45,7 @@ body {
 .iridescent {
   --color-ink: #131f24;
 }
+
 /* Behind the Traveler mode homepage (see main.jsx). */
 body.light-page {
   background: var(--color-paper);
