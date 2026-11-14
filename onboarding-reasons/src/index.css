@@ -5,14 +5,15 @@
 @theme {
   --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
 
-  --color-ink: #131f24;          /* page background */
-  --color-panel: #202f36;        /* selected card fill */
-  --color-line: #37464f;         /* default borders */
-  --color-muted: #52656d;
-  --color-snow: #f1f7fb;         /* primary text */
-  --color-fog: #8fa3ad;          /* secondary text */
-  --color-sky: #49c0f8;          /* selected text / badge */
-  --color-sky-line: #3f85a7;     /* selected border */
+  /* Light mode (Duolingo light palette) */
+  --color-ink: #131f24;          /* dark ink for the homepage; the onboarding swaps it to white below */
+  --color-panel: #ddf4ff;        /* selected card fill */
+  --color-line: #e5e5e5;         /* default borders */
+  --color-muted: #afafaf;
+  --color-snow: #4b4b4b;         /* primary text */
+  --color-fog: #777777;          /* secondary text */
+  --color-sky: #1cb0f6;          /* selected text / badge */
+  --color-sky-line: #84d8ff;     /* selected border */
   --color-owl: #58cc02;
   --color-owl-dark: #58a700;
   --color-grape: #ce82ff;
@@ -34,6 +35,12 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Onboarding: "ink" is the page background and the text on colored buttons,
+   so in light mode it is white. The homepage keeps the dark ink (see main.jsx). */
+body:not(.light-page) {
+  --color-ink: #ffffff;
 }
 
 /* Behind the Traveler mode homepage (see main.jsx). */

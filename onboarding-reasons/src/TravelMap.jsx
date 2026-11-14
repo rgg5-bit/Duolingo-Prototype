@@ -404,7 +404,7 @@ export default function TravelMap({ initial, onDone, onClose }) {
               <button
                 type="button"
                 onClick={() => flyTo("world")}
-                className="absolute top-2.5 left-2.5 rounded-xl border-2 border-b-4 border-[#b9c8cf] bg-white px-2.5 py-1 text-[13px] font-black text-ink outline-none active:translate-y-[2px] active:border-b-2 focus-visible:ring-4 focus-visible:ring-ink/40"
+                className="absolute top-2.5 left-2.5 rounded-xl border-2 border-b-4 border-[#b9c8cf] bg-white px-2.5 py-1 text-[13px] font-black text-[#4b4b4b] outline-none active:translate-y-[2px] active:border-b-2 focus-visible:ring-4 focus-visible:ring-ink/40"
               >
                 🌍 World
               </button>
