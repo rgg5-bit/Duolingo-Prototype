@@ -21,6 +21,17 @@ export const DESTINATIONS = [
   { id: "berlin", city: "Berlin", country: "Germany", flag: "🇩🇪", language: "German", cheer: "Gute Reise!" },
   { id: "lisbon", city: "Lisbon", country: "Portugal", flag: "🇵🇹", language: "Portuguese", cheer: "Boa viagem!" },
   { id: "seoul", city: "Seoul", country: "South Korea", flag: "🇰🇷", language: "Korean", cheer: "즐거운 여행 되세요!" },
+  // More cities per language, so the combined onboarding's "Where are you going?" has real choices.
+  { id: "montreal", city: "Montréal", country: "Canada", flag: "🇨🇦", language: "French", cheer: "Bon voyage !" },
+  { id: "nice", city: "Nice", country: "France", flag: "🇫🇷", language: "French", cheer: "Bon voyage !" },
+  { id: "madrid", city: "Madrid", country: "Spain", flag: "🇪🇸", language: "Spanish", cheer: "¡Buen viaje!" },
+  { id: "buenosaires", city: "Buenos Aires", country: "Argentina", flag: "🇦🇷", language: "Spanish", cheer: "¡Buen viaje!" },
+  { id: "florence", city: "Florence", country: "Italy", flag: "🇮🇹", language: "Italian", cheer: "Buon viaggio!" },
+  { id: "milan", city: "Milan", country: "Italy", flag: "🇮🇹", language: "Italian", cheer: "Buon viaggio!" },
+  { id: "kyoto", city: "Kyoto", country: "Japan", flag: "🇯🇵", language: "Japanese", cheer: "いってらっしゃい!" },
+  { id: "osaka", city: "Osaka", country: "Japan", flag: "🇯🇵", language: "Japanese", cheer: "いってらっしゃい!" },
+  { id: "munich", city: "Munich", country: "Germany", flag: "🇩🇪", language: "German", cheer: "Gute Reise!" },
+  { id: "vienna", city: "Vienna", country: "Austria", flag: "🇦🇹", language: "German", cheer: "Gute Reise!" },
 ];
 
 // Step 2: "When is your flight?"
@@ -34,7 +45,10 @@ export const FLIGHT_TIMES = [
 ];
 
 export function travelUnit(trip) {
-  const dest = DESTINATIONS.find((d) => d.id === trip.destination) ?? DESTINATIONS[0];
+  // Trips from the combined app's map can be any city; they carry their own names.
+  const dest =
+    DESTINATIONS.find((d) => d.id === trip.destination) ??
+    (trip.city ? { city: trip.city, country: trip.country } : DESTINATIONS[0]);
   return {
     section: `TRAVELER MODE · ${dest.country.toUpperCase()}`,
     title: `Survive your first day in ${dest.city}`,

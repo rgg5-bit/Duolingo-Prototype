@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
+  BackArrow,
   ChestIcon,
   CloseGlyph,
   EnergyIcon,
@@ -221,7 +222,12 @@ function PathNode({ node }) {
 
 // onStartOnboarding: when set (the combined build in onboarding-reasons), the
 // Traveler mode button opens the onboarding prototype in the selected course's language.
-export default function Home({ onStartOnboarding }) {
+// Combined build only: renderPath({ showToast }) replaces the sample lesson path
+// with the user's own (branching) trail; onCourseChange(id) reports course switches;
+// onBack shows a back arrow that returns to the previous screen; streakSlot
+// replaces the sample "0" streak; travelSlot shows above the unit banner while
+// Traveler mode is on (the trip countdown).
+export default function Home({ onStartOnboarding, renderPath, onCourseChange, onBack, streakSlot, travelSlot }) {
   const [courseId, setCourseId] = useState(loadCourse);
   const [trip, setTrip] = useState(loadTrip);
   const [onboarding, setOnboarding] = useState(false);
@@ -294,7 +300,17 @@ export default function Home({ onStartOnboarding }) {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col bg-paper sm:border-x-2 sm:border-swan">
       {/* Top stats bar */}
-      <header className="sticky top-0 z-20 flex h-[68px] items-center justify-between bg-paper px-5">
+      <header className={`sticky top-0 z-20 flex h-[68px] items-center justify-between bg-paper ${onBack ? "px-3" : "px-5"}`}>
+        {onBack && (
+          <button
+            type="button"
+            aria-label="Back"
+            onClick={onBack}
+            className="-mr-1 rounded-lg p-1 text-hare outline-none hover:text-wolf focus-visible:ring-4 focus-visible:ring-macaw/30"
+          >
+            <BackArrow className="h-6 w-6" />
+          </button>
+        )}
         <div className="relative">
           <button
             type="button"
@@ -316,6 +332,7 @@ export default function Home({ onStartOnboarding }) {
                 if (c.id === courseId) return;
                 setCourseId(c.id);
                 saveCourse(c.id);
+                onCourseChange?.(c.id);
                 showToast(`Switched to ${c.name}`);
               }}
             />
@@ -326,9 +343,11 @@ export default function Home({ onStartOnboarding }) {
           <TravelModeButton on={travelMode} onToggle={toggleTravel} />
         </div>
 
-        <span className="flex items-center gap-1.5 text-[17px] font-black text-hare" aria-label="0 day streak">
-          <FlameIcon className="h-7 w-7 text-[#d3d3d3]" />0
-        </span>
+        {streakSlot ?? (
+          <span className="flex items-center gap-1.5 text-[17px] font-black text-hare" aria-label="0 day streak">
+            <FlameIcon className="h-7 w-7 text-[#d3d3d3]" />0
+          </span>
+        )}
         <span className="flex items-center gap-1.5 text-[17px] font-black text-macaw" aria-label="1053 gems">
           <GemIcon className="h-7 w-7" />
           1053
@@ -339,6 +358,7 @@ export default function Home({ onStartOnboarding }) {
       </header>
 
       <main ref={mainRef} className="flex-1 px-4 pb-32">
+        {travelMode && travelSlot}
         {bannerOpen && !travelMode && (
           <TravelBanner notchX={notchX} onOpen={toggleTravel} onDismiss={() => setBannerOpen(false)} />
         )}
@@ -365,6 +385,7 @@ export default function Home({ onStartOnboarding }) {
         </section>
 
         {/* Lesson path */}
+        {renderPath ? renderPath({ showToast }) : (
         <ol className="relative mt-6 flex flex-col">
           {NODES.map((node, i) => (
             <li
@@ -394,6 +415,7 @@ export default function Home({ onStartOnboarding }) {
             </li>
           ))}
         </ol>
+        )}
       </main>
 
       {/* Bottom nav */}

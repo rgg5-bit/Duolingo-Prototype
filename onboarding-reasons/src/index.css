@@ -36,6 +36,17 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Reuse the dark onboarding components on the light homepage: inside .light-scope
+   the named colors flip to Duolingo's light palette (e.g. the streak panel). */
+.light-scope {
+  --color-ink: #ffffff;
+  --color-panel: #f7f7f7;
+  --color-line: #e5e5e5;
+  --color-muted: #afafaf;
+  --color-snow: #4b4b4b;
+  --color-fog: #777777;
+}
+
 /* Behind the Traveler mode homepage (see main.jsx). */
 body.light-page {
   background: var(--color-paper);

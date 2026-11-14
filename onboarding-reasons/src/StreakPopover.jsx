@@ -49,7 +49,8 @@ function status(streak) {
 }
 
 // Dropdown under the streak flame: count, this week, today's status, next step.
-export default function StreakPopover({ streak, onAction, onClose }) {
+// light: use the homepage's light colors. arrowRight: where the little pointer sits.
+export default function StreakPopover({ streak, onAction, onClose, light = false, arrowRight = 24 }) {
   const ref = useRef(null);
   const s = status(streak);
   const t = today(streak);
@@ -73,11 +74,14 @@ export default function StreakPopover({ streak, onAction, onClose }) {
         tabIndex={-1}
         role="dialog"
         aria-label="Your streak"
-        className="absolute top-14 right-0 z-40 w-[min(320px,calc(100vw-32px))] animate-pop rounded-2xl border-2 border-line bg-ink p-4 shadow-2xl outline-none"
+        className={`absolute top-14 right-0 z-40 w-[min(320px,calc(100vw-32px))] animate-pop rounded-2xl border-2 border-line bg-ink p-4 shadow-2xl outline-none ${
+          light ? "light-scope" : ""
+        }`}
       >
         <span
           aria-hidden="true"
-          className="absolute -top-[9px] right-6 h-4 w-4 rotate-45 border-t-2 border-l-2 border-line bg-ink"
+          className="absolute -top-[9px] h-4 w-4 rotate-45 border-t-2 border-l-2 border-line bg-ink"
+          style={{ right: arrowRight }}
         />
 
         <div className="flex items-center gap-3">

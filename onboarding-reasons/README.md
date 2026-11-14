@@ -9,13 +9,60 @@ Built with React 18 + Vite + Tailwind CSS v4.
 **Live demo:** https://rgg5-bit.github.io/Duolingo-Prototype/. This is rebuilt
 automatically by `.github/workflows/deploy-pages.yml` on every push to `main`.
 
-**Combined with Traveler mode:** this build opens on the Traveler mode homepage
-from `../traveler-mode`. Pick a language with the course flag (top left), then
-tap the **Traveler mode** button to open this onboarding in that language
-(French, Spanish, Italian, German or Japanese). Its back arrow returns to the
-homepage (see `src/main.jsx`). Each language's words, sentences and sample
-phrases live in `src/courses.js`, and answers and progress are saved per language.
-Run on its own, the onboarding uses Italian.
+**Combined with Traveler mode:** the flow (see `src/main.jsx`) is:
+
+1. **What would you like to learn?** (`src/CoursePicker.jsx`): pick a language.
+   Spanish, French, German, Italian and Japanese have lessons; the others are
+   marked **SOON**.
+2. **Step-by-step questions** (`src/OnboardingQuestions.jsx`), one per screen with
+   a progress bar and back arrow:
+   - **Why are you learning?** (Travel is tagged ✈️ Traveler mode)
+   - *Only if Travel was picked:* **Where are you going?** on an interactive map
+     (`src/TripMap.jsx`): tap a continent, then hover or tap a country to see
+     roughly how many people there speak the course language, tap it to zoom in to
+     its cities (each with its own %), and tap a city to pick it. Pins are colored
+     by speaker share (50%+, 10%+, 1%+, <1%). The figures in `src/speakers.js` are
+     rough estimates (native + fluent speakers): check them before presenting.
+     Then **When is your trip?** (a date, or "I haven't booked yet") and **How long
+     will you stay?**
+   - **How much do you know?** (from "I'm new" to "I can discuss most topics")
+   - **What do you want to learn first?** (up to 3; trip lessons are tagged
+     **FOR YOUR TRIP**)
+
+   **Start learning** saves the answers and opens the homepage. Picking Travel turns
+   on the homepage's Traveler mode for that city ("Survive your first day in Kyoto").
+3. On the **homepage trail**
+   (`src/BranchTrail.jsx`, inside `../traveler-mode`'s homepage). It splits into
+   **one path per lesson you picked**, so you choose where to go next:
+   - each path is **Lesson → Practice → Reward chest**; every path's lesson is open
+     from the start (with a **START** bubble), Practice unlocks after the lesson,
+     and the chest opens after practice;
+   - the paths rejoin at the bottom, where **Pick more lessons** unlocks once every
+     path's lesson is done.
+   Progress per path is saved per language (`src/trail.js`).
+
+**On the homepage** (both plug into small slots in `../traveler-mode`'s `Home.jsx`):
+
+- **Trip countdown** (`src/TripCountdown.jsx`, Traveler mode only): "12 days until
+  Miami" with the date and trip length, a ✈️ that moves along a dotted path as the
+  day gets closer, and a **Trip-ready** bar (trail lessons done). It changes on the
+  last day ("1 day until…"), the day itself ("Today's the day!"), during the stay
+  ("Day 3 in Miami") and after ("Welcome back"). With no date it offers **Add
+  travel date**, which jumps to that question.
+- **Real streak** (`src/HomeStreak.jsx`) replaces the sample "0": tap the 🔥 for
+  the streak panel (in light colors). It offers **Start a lesson** (the next open
+  trail lesson) or, when the streak is on hold, **Save my streak**. Opening the
+  homepage checks for a missed day, so a streak can go on hold there too.
+
+**Going back:** every screen (and every question) is a browser history entry, so
+the back arrow on each screen, including the homepage, and the phone or browser
+back gesture both return to the screen you were just on. Answers to the questions
+are kept while you go back and forth.
+
+The homepage's **Traveler mode** button and course flag still work as before. Each
+language's words, sentences and sample phrases live in `src/courses.js`, and
+answers and progress are saved per language. Run on its own, the onboarding uses
+Italian.
 
 ## Run it
 

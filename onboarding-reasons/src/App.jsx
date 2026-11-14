@@ -54,22 +54,29 @@ function screenFor(event) {
   return null; // "extended" shows up on the lesson's finish screen instead
 }
 
-// onBack: when set (the combined build), the back arrow returns to the homepage.
-export default function App({ onBack }) {
+// Combined build (see main.jsx):
+// - onBack: the back arrow returns to the homepage.
+// - startLesson: open straight into this lesson (tapped on the homepage path).
+// - onLessonsDone(finished): after a lesson ends, go to the homepage path to pick
+//   the next one. `finished` is true when the lesson was completed (not quit).
+export default function App({ onBack, startLesson = null, onLessonsDone, openStreak = null }) {
   const [selection, setSelection] = useState(loadSelection);
   const [startChoice, setStartChoice] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [lessons, setLessons] = useState(loadLessons);
   const [lessonsOpen, setLessonsOpen] = useState(false);
   const [completed, setCompleted] = useState(loadCompleted);
-  const [playing, setPlaying] = useState(null); // lesson id being played
+  const [playing, setPlaying] = useState(startLesson); // lesson id being played
+  const goHomeAfter = useRef(false); // finished a lesson; head to the path when done here
+  const finishedOne = useRef(false); // a lesson was completed (not just opened and quit)
   const [toast, setToast] = useState(null);
   const toastTimer = useRef();
 
   // Streak: check for a missed day as soon as the app opens.
   const [initialStreak] = useState(() => evaluate(loadStreak()));
   const [streak, setStreak] = useState(initialStreak.state);
-  const [streakScreen, setStreakScreen] = useState(() => screenFor(initialStreak.event));
+  // openStreak ("rescue"): opened from the homepage's streak panel to save a streak.
+  const [streakScreen, setStreakScreen] = useState(() => screenFor(initialStreak.event) ?? openStreak ?? null);
 
   function applyStreak({ state, event }) {
     setStreak(state);
@@ -104,6 +111,8 @@ export default function App({ onBack }) {
   const upNextId = lessons.find((id) => !completed.includes(id)) ?? lessons[0];
 
   function handleLessonComplete(id) {
+    if (onLessonsDone) goHomeAfter.current = true;
+    finishedOne.current = true;
     applyStreak(practice(streak));
     if (completed.includes(id)) return;
     const next = [...completed, id];
@@ -111,8 +120,22 @@ export default function App({ onBack }) {
     saveCompleted(next);
   }
 
-  // The lesson after `id` in the user's picks, if any.
-  const nextAfter = (id) => (lessons.includes(id) ? lessons[lessons.indexOf(id) + 1] ?? null : null);
+  // The lesson after `id` in the user's picks, if any. In the combined build the
+  // homepage path picks the next lesson instead.
+  const nextAfter = (id) =>
+    onLessonsDone ? null : lessons.includes(id) ? lessons[lessons.indexOf(id) + 1] ?? null : null;
+
+  // Leaving a lesson: in the combined build, a finished lesson (or one opened from
+  // the path) returns to the path, unless a streak screen needs showing first.
+  function closeLesson() {
+    setPlaying(null);
+    if (onLessonsDone && startLesson) goHomeAfter.current = true;
+    if (goHomeAfter.current && !streakScreen) onLessonsDone(finishedOne.current);
+  }
+  function closeStreakScreen() {
+    setStreakScreen(null);
+    if (goHomeAfter.current) onLessonsDone(finishedOne.current);
+  }
 
   // Line shown under "Lesson complete!".
   const streakNote = streak.hold
@@ -494,7 +517,8 @@ export default function App({ onBack }) {
           streakNote={streakNote}
           onComplete={handleLessonComplete}
           onNext={(id) => setPlaying(id)}
-          onClose={() => setPlaying(null)}
+          onClose={closeLesson}
+          homeLabel={onLessonsDone ? "Continue" : "Back home"}
         />
       )}
 
@@ -511,14 +535,15 @@ export default function App({ onBack }) {
           streak={streak}
           onFriend={(i, changes) => applyStreak(updateFriend(streak, i, changes))}
           onPractice={practiceForRescue}
-          onClose={() => setStreakScreen(null)}
+          // Opened from the homepage: closing goes straight back there.
+          onClose={() => (openStreak && onBack ? onBack() : setStreakScreen(null))}
         />
       )}
       {!playing && streakScreen?.type === "restored" && (
-        <StreakRestored event={streakScreen} onClose={() => setStreakScreen(null)} />
+        <StreakRestored event={streakScreen} onClose={closeStreakScreen} />
       )}
       {!playing && (streakScreen?.type === "lost" || streakScreen?.type === "expired") && (
-        <StreakLost event={streakScreen} onClose={() => setStreakScreen(null)} />
+        <StreakLost event={streakScreen} onClose={closeStreakScreen} />
       )}
 
       {sheetOpen && (

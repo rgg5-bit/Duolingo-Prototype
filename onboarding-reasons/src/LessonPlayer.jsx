@@ -9,7 +9,15 @@ const XP_PER_EXERCISE = 10;
 
 // A short Duolingo-style lesson: multiple choice, matching pairs and
 // word-bank sentences. Missed exercises come back at the end.
-export default function LessonPlayer({ lessonId, nextId, streakNote, onComplete, onNext, onClose }) {
+export default function LessonPlayer({
+  lessonId,
+  nextId,
+  streakNote,
+  homeLabel = "Back home",
+  onComplete,
+  onNext,
+  onClose,
+}) {
   const lesson = getLesson(lessonId);
   const exercises = useMemo(() => buildExercises(lessonId), [lessonId]);
 
@@ -108,6 +116,7 @@ export default function LessonPlayer({ lessonId, nextId, streakNote, onComplete,
             nextLesson={nextId ? getLesson(nextId) : null}
             onNext={() => onNext(nextId)}
             onClose={onClose}
+            homeLabel={homeLabel}
           />
         ) : (
           <>
@@ -412,7 +421,7 @@ function Footer({ status, ex, ready, onCheck, onContinue }) {
   );
 }
 
-function Finished({ lesson, xp, accuracy, streakNote, nextLesson, onNext, onClose }) {
+function Finished({ lesson, xp, accuracy, streakNote, nextLesson, onNext, onClose, homeLabel }) {
   return (
     <div className="flex flex-1 flex-col items-center px-5 pt-16 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center animate-pop">
       <div className="w-[140px] animate-hop">
@@ -454,7 +463,7 @@ function Finished({ lesson, xp, accuracy, streakNote, nextLesson, onNext, onClos
               : "border-owl border-b-owl-dark bg-owl text-ink hover:brightness-105"
           }`}
         >
-          Back home
+          {homeLabel}
         </button>
       </div>
     </div>
