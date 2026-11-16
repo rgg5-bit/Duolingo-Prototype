@@ -1,7 +1,7 @@
 import { courseKey } from "./courses.js";
 import { loadCompleted } from "./lessonContent.js";
 import { getLesson, loadLessons } from "./lessons.js";
-import { PATH } from "./practice.js";
+import { LEVEL_START, PATH } from "./practice.js";
 
 // The homepage trail branches into one path per lesson the user picked. Each
 // path is 20 steps in 4 levels (PATH in practice.js), getting more advanced as
@@ -35,6 +35,13 @@ export function markStep(id, index) {
   } catch {
     // Storage blocked: progress just isn't remembered.
   }
+}
+
+// Placement from the level question: start each lesson's path further along
+// (never moves a path backwards).
+export function placeAtLevel(lessonIds, level) {
+  const start = LEVEL_START[level] ?? 0;
+  if (start > 0) lessonIds.forEach((id) => markStep(id, start - 1));
 }
 
 // For "✓ Completed · 7/20 steps" labels.

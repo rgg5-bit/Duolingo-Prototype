@@ -53,6 +53,18 @@ export const PATH = [
 
 export const isReward = (mode) => mode === "chest" || mode === "trophy";
 
+// Placement: where each path starts for the "How much do you know?" answer
+// (0 = I'm new … 4 = I can discuss most topics). Earlier steps count as done.
+export const LEVEL_START = [0, 1, 5, 10, 15];
+
+export function placementText(level) {
+  const start = LEVEL_START[level] ?? 0;
+  if (!start) return "You'll start from the very first lesson.";
+  const step = PATH[start];
+  if (start === 1) return "You'll skip the intro lesson and start with ✏️ Writing.";
+  return `You'll start at Level ${step.level + 1} · ${LEVELS[step.level]}.`;
+}
+
 // Accent keys under the typing box, so beginners don't hunt for them.
 export const ACCENT_KEYS = {
   es: ["á", "é", "í", "ó", "ú", "ñ", "ü", "¿", "¡"],

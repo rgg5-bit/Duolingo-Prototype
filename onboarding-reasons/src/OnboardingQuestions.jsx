@@ -4,7 +4,7 @@ import TripMap from "./TripMap.jsx";
 import { course, courseKey } from "./courses.js";
 import { loadCompleted } from "./lessonContent.js";
 import { LESSONS, MAX_LESSONS, lessonSample, suggestedLessons } from "./lessons.js";
-import { PATH } from "./practice.js";
+import { PATH, placementText } from "./practice.js";
 import { stepsDone } from "./trail.js";
 import { REASONS } from "./reasons.js";
 import { PRESSABLE } from "./styles.js";
@@ -342,6 +342,11 @@ export default function OnboardingQuestions({ draft, onDraft, step: rawStep, onS
                   <span>
                     <span className={`block ${optionText(level === l.id)}`}>{l.label.replace("{lang}", lang)}</span>
                     <span className="block text-[14px] font-bold text-fog">{l.hint}</span>
+                    {level === l.id && (
+                      <span className="mt-1 block animate-pop text-[13px] font-extrabold text-sky">
+                        📍 {placementText(l.id)}
+                      </span>
+                    )}
                   </span>
                 </Option>
               </li>

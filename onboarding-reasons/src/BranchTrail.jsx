@@ -163,6 +163,7 @@ function Divider({ children }) {
 
 export default function BranchTrail({ trail, facts, factPlace, onPlay, onPickMore, onOpenReward, showToast }) {
   const { branches, finishedLessons, allLessonsDone } = trail;
+  const allMastered = branches.every((b) => b.complete);
   const n = branches.length;
   const amp = AMPLITUDE[n] ?? 12;
 
@@ -189,9 +190,9 @@ export default function BranchTrail({ trail, facts, factPlace, onPlay, onPickMor
 
       <Divider>Choose your path</Divider>
       <p className="-mt-3 mb-4 text-center text-[14px] font-bold text-wolf">
-        {allLessonsDone
-          ? "You finished every path. Nice!"
-          : finishedLessons
+        {allMastered
+          ? "You mastered every path. Amazing!"
+          : branches.some((b) => b.done > 0)
             ? "Pick any path to keep going"
             : "Start with any lesson you picked"}
       </p>
@@ -255,7 +256,7 @@ export default function BranchTrail({ trail, facts, factPlace, onPlay, onPickMor
       </ol>
 
       {/* Paths rejoin: the end of the unit */}
-      <Divider>{allLessonsDone ? "Unit complete" : "Finish your paths"}</Divider>
+      <Divider>{allMastered ? "Unit complete" : allLessonsDone ? "Ready for more?" : "Finish your paths"}</Divider>
       <div className="flex flex-col items-center pb-4">
         <span className="relative">
           {allLessonsDone && <ProgressRing />}

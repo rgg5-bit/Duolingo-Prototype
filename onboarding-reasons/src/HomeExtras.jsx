@@ -23,6 +23,34 @@ export function SetupCard({ langName, onSetUp }) {
   );
 }
 
+// After the level question: explains why paths don't start at step 1.
+export function PlacementNote({ text, onDismiss }) {
+  return (
+    <section
+      role="status"
+      className="mt-6 flex animate-pop items-start gap-3 rounded-2xl border-2 border-b-4 border-[#84d8ff] bg-[#ddf4ff] px-4 py-3"
+    >
+      <span className="text-[24px] leading-none" aria-hidden="true">
+        🎯
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] font-black text-eel">Placed by your level</p>
+        <p className="mt-0.5 text-[14px] font-bold leading-snug text-wolf">
+          {text} The steps before it are marked done, but you can tap them to review anytime.
+        </p>
+      </div>
+      <button
+        type="button"
+        aria-label="Dismiss"
+        onClick={onDismiss}
+        className="rounded-lg px-1.5 text-[18px] font-black text-hare outline-none hover:text-wolf focus-visible:ring-4 focus-visible:ring-macaw/30"
+      >
+        ✕
+      </button>
+    </section>
+  );
+}
+
 // Clearly labeled helpers for user-testing sessions, at the very bottom of the
 // homepage: wipe everything for the next tester, or fast-forward a day to try
 // the streak features.

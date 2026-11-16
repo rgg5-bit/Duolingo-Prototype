@@ -6,7 +6,7 @@ import App from "./App.jsx";
 import BranchTrail from "./BranchTrail.jsx";
 import CoursePicker from "./CoursePicker.jsx";
 import { course, setCourse } from "./courses.js";
-import { SetupCard, TesterTools, startOver } from "./HomeExtras.jsx";
+import { PlacementNote, SetupCard, TesterTools, startOver } from "./HomeExtras.jsx";
 import { factCountry, factsFor } from "./facts.js";
 import { getCountry } from "./speakers.js";
 import HomeStreak from "./HomeStreak.jsx";
@@ -15,8 +15,8 @@ import OnboardingQuestions, { EMPTY_DRAFT, daysUntil, loadLevel, saveLevel, toda
 import { loadSelection, saveSelection } from "./reasons.js";
 import { evaluate, loadStreak, nextDay, saveStreak } from "./streak.js";
 import { StreakLost, StreakOnHold } from "./StreakScreens.jsx";
-import { isReward } from "./practice.js";
-import { buildTrail, markStep } from "./trail.js";
+import { isReward, placementText } from "./practice.js";
+import { buildTrail, markStep, placeAtLevel } from "./trail.js";
 import TravelerGuide from "./TravelerGuide.jsx";
 import TripCountdown from "./TripCountdown.jsx";
 import "./index.css";
@@ -43,6 +43,8 @@ function saveAnswers({ reasons, trip, level, lessons }) {
   saveSelection({ ids: reasons, other: "", trips: [] });
   saveLessons(lessons);
   saveLevel(level);
+  // Start each path where the answer to "How much do you know?" puts you.
+  placeAtLevel(lessons, level);
   // Turning Traveler mode on (or off) for the homepage. setOn lets the countdown's
   // plane start at the beginning of its path on the day the trip was planned.
   saveTrip(trip ? { ...trip, flight: flightBucket(trip.date), setOn: todayIso() } : null);
@@ -75,6 +77,7 @@ function Root() {
   const [nav, setNav] = useState(START);
   const { screen, step, launch } = nav; // launch: { id, mode: "lesson" | "practice" } from the trail
   const [draft, setDraft] = useState(EMPTY_DRAFT); // question answers, kept while going back and forth
+  const [placedAt, setPlacedAt] = useState(null); // level answer, for the "you start at…" note
   const [courseId, setCourseId] = useState(() => {
     const id = loadCourse();
     setCourse(id);
@@ -211,6 +214,7 @@ function Root() {
         onBack={back}
         onDone={(answers) => {
           saveAnswers(answers);
+          setPlacedAt(answers.level > 0 ? answers.level : null);
           go({ screen: "home" });
         }}
       />
@@ -272,6 +276,9 @@ function Root() {
       }
       renderPath={({ showToast }) => (
         <>
+          {trail && placedAt !== null && (
+            <PlacementNote text={placementText(placedAt)} onDismiss={() => setPlacedAt(null)} />
+          )}
           {trail ? (
             <BranchTrail
               trail={trail}

@@ -25,7 +25,11 @@ automatically by `.github/workflows/deploy-pages.yml` on every push to `main`.
      rough estimates (native + fluent speakers): check them before presenting.
      Then **When is your trip?** (a date, or "I haven't booked yet") and **How long
      will you stay?**
-   - **How much do you know?** (from "I'm new" to "I can discuss most topics")
+   - **How much do you know?** (from "I'm new" to "I can discuss most topics").
+     This places each path: "I'm new" starts at the first lesson, "I know some
+     common words" skips the intro lesson, and the higher answers start at Level
+     2, 3 or 4 (`LEVEL_START` in `src/practice.js`). Earlier steps count as done
+     but can be replayed, and the homepage shows a "Placed by your level" note.
    - **What do you want to learn first?** (up to 3; trip lessons are tagged
      **FOR YOUR TRIP**)
 
