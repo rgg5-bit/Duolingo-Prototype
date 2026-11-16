@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ChestIcon, LockIcon, RepeatIcon, StarIcon } from "../../traveler-mode/src/Icons.jsx";
+import { ChestIcon, LockIcon, StarIcon } from "../../traveler-mode/src/Icons.jsx";
+import { LEVELS, isReward } from "./practice.js";
 
 // Homepage trail that splits into one path per picked lesson (see trail.js),
 // drawn in the same style as the original green Duolingo path in Home.jsx:
@@ -15,11 +16,22 @@ const PALETTE = {
   locked: "bg-swan shadow-[0_8px_0_#b7b7b7]",
 };
 
-const NAMES = { lesson: "Lesson", practice: "Practice", chest: "Reward chest" };
-
 // Zigzag (px) per step; wider paths swing further, like the original.
 const AMPLITUDE = { 1: 44, 2: 22, 3: 12 };
-const ZIGZAG = [0, -1, -1.5];
+const ZIGZAG = [0, -1, -1.5, -1, 0];
+
+// Little label floating above the node you're on.
+function Bubble({ children }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="animate-bob absolute bottom-[calc(100%+24px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-xl border-2 border-swan bg-paper px-2.5 py-1 text-[13px] font-black uppercase tracking-wide text-turtle"
+    >
+      {children}
+      <span className="absolute -bottom-[7px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-r-2 border-b-2 border-swan bg-paper" />
+    </span>
+  );
+}
 
 // Grey dashed ring around the node you're on (same as the original path).
 function ProgressRing() {
@@ -46,25 +58,32 @@ function ProgressRing() {
 
 function StepNode({ step, lesson, current, onClick }) {
   const { kind, state } = step;
-  const label = `${lesson.label}: ${NAMES[kind]}${state === "locked" ? " (locked)" : state === "done" ? " (done)" : ""}`;
+  const label = `${lesson.label}: ${step.name}${isReward(kind) ? "" : ` (level ${step.level + 1})`}${
+    state === "locked" ? " (locked)" : state === "done" ? " (done)" : ""
+  }`;
 
   if (kind === "chest") {
     return (
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label={label}
-        className={`rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-macaw/30 ${
-          state === "open" ? "animate-bob" : "opacity-60"
-        }`}
-      >
-        <ChestIcon className="h-[58px] w-[66px]" />
-      </button>
+      <span className="relative">
+        {current && <Bubble>Open me!</Bubble>}
+        <button
+          type="button"
+          onClick={onClick}
+          aria-label={label}
+          className={`rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-macaw/30 ${
+            state === "open" ? "animate-bob" : state === "locked" ? "opacity-60" : ""
+          }`}
+        >
+          <ChestIcon className="h-[58px] w-[66px]" />
+        </button>
+      </span>
     );
   }
 
   let content;
-  if (state === "done") {
+  if (kind === "trophy" && state !== "locked") {
+    content = <span className="text-[32px] leading-none" aria-hidden="true">🏆</span>;
+  } else if (state === "done") {
     content = (
       <>
         <span aria-hidden="true" className="absolute top-2 left-4 h-11 w-3 -rotate-[35deg] rounded-full bg-white/40" />
@@ -72,7 +91,14 @@ function StepNode({ step, lesson, current, onClick }) {
       </>
     );
   } else if (state === "open") {
-    content = kind === "practice" ? <RepeatIcon className="h-9 w-9" /> : <StarIcon className="h-9 w-9 text-white" />;
+    content =
+      kind === "lesson" ? (
+        <StarIcon className="h-9 w-9 text-white" />
+      ) : (
+        <span className="text-[30px] leading-none" aria-hidden="true">
+          {step.emoji}
+        </span>
+      );
   } else {
     content = <LockIcon className="h-8 w-8 text-hare" />;
   }
@@ -80,16 +106,14 @@ function StepNode({ step, lesson, current, onClick }) {
   return (
     <span className="relative">
       {current && <ProgressRing />}
-      {current && kind === "lesson" && (
-        <span
-          aria-hidden="true"
-          className="animate-bob absolute bottom-[calc(100%+24px)] left-1/2 z-10 -translate-x-1/2 rounded-xl border-2 border-swan bg-paper px-2.5 py-1 text-[13px] font-black uppercase tracking-wide text-turtle"
-        >
-          Start
-          <span className="absolute -bottom-[7px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-r-2 border-b-2 border-swan bg-paper" />
-        </span>
-      )}
-      <button type="button" onClick={onClick} aria-label={label} className={`${NODE} ${PALETTE[state]}`}>
+      {/* What this step is: START for the lesson, then WRITING / LISTENING / … */}
+      {current && <Bubble>{kind === "lesson" ? "Start" : step.name}</Bubble>}
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={label}
+        className={`${NODE} ${kind === "trophy" && state !== "locked" ? PALETTE.done : PALETTE[state]}`}
+      >
         {content}
       </button>
     </span>
@@ -136,20 +160,26 @@ function Divider({ children }) {
   );
 }
 
-export default function BranchTrail({ trail, facts, factPlace, onPlay, onPickMore, showToast }) {
+export default function BranchTrail({ trail, facts, factPlace, onPlay, onPickMore, onOpenReward, showToast }) {
   const { branches, finishedLessons, allLessonsDone } = trail;
   const n = branches.length;
   const amp = AMPLITUDE[n] ?? 12;
 
   function tap(branch, step) {
     const name = `${branch.lesson.emoji} ${branch.lesson.label}`;
-    if (step.kind === "lesson") return onPlay(branch.id, "lesson");
-    if (step.kind === "practice") {
-      if (step.state === "locked") return showToast(`Finish the ${branch.lesson.label} lesson first`);
-      return onPlay(branch.id, "practice");
+    if (step.state === "locked") {
+      const before = branch.steps[step.index - 1];
+      return showToast(`Finish ${before.name} first to unlock this step`);
     }
-    if (step.state === "locked") return showToast("Do the lesson and practice to open this chest");
-    showToast(`🎁 ${name} chest opened! +20 gems`);
+    if (isReward(step.kind)) {
+      if (step.state === "open") onOpenReward(branch.id, step.index);
+      return showToast(
+        step.kind === "trophy"
+          ? `🏆 You mastered ${name}! +50 gems`
+          : `🎁 Level ${step.level + 1} chest opened! +20 gems${step.state === "open" ? ` · Level ${step.level + 2} unlocked` : ""}`,
+      );
+    }
+    onPlay(branch.id, step);
   }
 
   return (
@@ -169,8 +199,8 @@ export default function BranchTrail({ trail, facts, factPlace, onPlay, onPickMor
       <ol className="grid gap-2" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
         {branches.map((b, col) => {
           // The node you're on in this path: the first one that isn't done.
-          const currentIdx = b.steps.findIndex((s) => s.kind !== "chest" && s.state === "open");
-          const pathDone = b.steps[1].state === "done";
+          const currentIdx = b.steps.findIndex((s) => s.state === "open");
+          const pathDone = b.complete;
           // Alternate the swing so neighbouring paths curve away from each other.
           const side = n === 1 ? 1 : col < (n - 1) / 2 ? -1 : col > (n - 1) / 2 ? 1 : 0;
           return (
@@ -182,7 +212,7 @@ export default function BranchTrail({ trail, facts, factPlace, onPlay, onPickMor
                 }`}
               >
                 <span className="text-[11px] font-black uppercase tracking-[0.08em] text-white/80">
-                  {pathDone ? "Done ✓" : `Path ${col + 1}`}
+                  {pathDone ? "Mastered ✓" : `Path ${col + 1} · ${b.done}/${b.steps.length}`}
                 </span>
                 <span className="mt-0.5 flex items-center gap-1 text-[14px] font-extrabold leading-tight text-white">
                   <span aria-hidden="true">{b.lesson.emoji}</span>
@@ -193,13 +223,26 @@ export default function BranchTrail({ trail, facts, factPlace, onPlay, onPickMor
               {/* Nodes, zigzagging down like the original path */}
               {/* Same row height in every path so they line up side by side; the top
                   margin leaves room for the START bubble above the first node. */}
-              <ol className="mt-12 flex w-full flex-col items-center">
+              <ol className="mt-4 flex w-full flex-col items-center">
                 {b.steps.map((step, i) => {
                   const current = i === currentIdx;
+                  const newLevel = i === 0 || b.steps[i - 1].level !== step.level;
                   return (
-                    <li key={step.kind} className="flex h-[104px] w-full justify-center pt-[20px]">
-                      <div style={{ transform: `translateX(${ZIGZAG[i] * amp * (side || (i % 2 ? 1 : -1))}px)` }}>
-                        <StepNode step={step} lesson={b.lesson} current={current} onClick={() => tap(b, step)} />
+                    <li key={step.index} className="flex w-full flex-col items-center">
+                      {/* Level label at the start of each level (same height in every path). */}
+                      {newLevel && (
+                        <span
+                          className={`mt-2 mb-9 rounded-full px-2 py-0.5 text-center text-[10px] font-black uppercase leading-tight tracking-[0.06em] ${
+                            step.index <= b.done ? "bg-turtle/15 text-turtle-dark" : "bg-polar text-hare"
+                          }`}
+                        >
+                          Level {step.level + 1} · {LEVELS[step.level]}
+                        </span>
+                      )}
+                      <div className="flex h-[104px] w-full justify-center pt-[20px]">
+                        <div style={{ transform: `translateX(${ZIGZAG[i % ZIGZAG.length] * amp * (side || (i % 2 ? 1 : -1))}px)` }}>
+                          <StepNode step={step} lesson={b.lesson} current={current} onClick={() => tap(b, step)} />
+                        </div>
                       </div>
                     </li>
                   );

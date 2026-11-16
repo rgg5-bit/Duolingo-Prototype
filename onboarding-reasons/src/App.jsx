@@ -60,7 +60,15 @@ function screenFor(event) {
 // - startLesson: open straight into this lesson (tapped on the homepage path).
 // - onLessonsDone(finished): after a lesson ends, go to the homepage path to pick
 //   the next one. `finished` is true when the lesson was completed (not quit).
-export default function App({ onBack, startLesson = null, onLessonsDone, openStreak = null }) {
+// - startMode: which path step startLesson opens (lesson | writing | grammar | speaking).
+export default function App({
+  onBack,
+  startLesson = null,
+  startMode = "lesson",
+  startVariant = null,
+  onLessonsDone,
+  openStreak = null,
+}) {
   const [selection, setSelection] = useState(loadSelection);
   const [startChoice, setStartChoice] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -129,10 +137,18 @@ export default function App({ onBack, startLesson = null, onLessonsDone, openStr
   // Leaving a lesson: in the combined build, a finished lesson (or one opened from
   // the path) returns to the path, unless a streak screen needs showing first.
   function closeLesson() {
-    setPlaying(null);
     if (onLessonsDone && startLesson) goHomeAfter.current = true;
-    if (goHomeAfter.current && !streakScreen) onLessonsDone(finishedOne.current);
+    if (goHomeAfter.current && !streakScreen) {
+      // Keep the lesson on screen while we head back, so the onboarding page
+      // behind it never flashes up.
+      onLessonsDone(finishedOne.current);
+      return;
+    }
+    setPlaying(null);
   }
+
+  // Opened straight from the homepage path: no fade-in over this page.
+  const directLaunch = Boolean(startLesson && onLessonsDone);
   function closeStreakScreen() {
     setStreakScreen(null);
     if (goHomeAfter.current) onLessonsDone(finishedOne.current);
@@ -527,6 +543,9 @@ export default function App({ onBack, startLesson = null, onLessonsDone, openStr
           onNext={(id) => setPlaying(id)}
           onClose={closeLesson}
           homeLabel={onLessonsDone ? "Continue" : "Back home"}
+          mode={playing === startLesson ? startMode : "lesson"}
+          variant={playing === startLesson ? startVariant : undefined}
+          fade={!directLaunch}
         />
       )}
 

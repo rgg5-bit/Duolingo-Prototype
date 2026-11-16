@@ -15,7 +15,8 @@ import OnboardingQuestions, { EMPTY_DRAFT, daysUntil, loadLevel, saveLevel, toda
 import { loadSelection, saveSelection } from "./reasons.js";
 import { evaluate, loadStreak, nextDay, saveStreak } from "./streak.js";
 import { StreakLost, StreakOnHold } from "./StreakScreens.jsx";
-import { buildTrail, markPracticed } from "./trail.js";
+import { isReward } from "./practice.js";
+import { buildTrail, markStep } from "./trail.js";
 import TravelerGuide from "./TravelerGuide.jsx";
 import TripCountdown from "./TripCountdown.jsx";
 import "./index.css";
@@ -125,7 +126,9 @@ function Root() {
 
   // A lesson opened from the trail (or the lessons screen) returns to the trail.
   function backToTrail(finished) {
-    if (finished && launch?.mode === "practice") markPracticed(launch.id);
+    // Writing / grammar / speaking steps are recorded here; lessons by the onboarding.
+    // Record the finished path step (the onboarding also records lessons itself).
+    if (finished && launch) markStep(launch.id, launch.step ?? 0);
     back();
   }
 
@@ -144,11 +147,17 @@ function Root() {
 
   // "Start a lesson" from the streak panel: the next open lesson on the trail.
   function startNextLesson(trail) {
+    // Prefer an unstarted lesson, else the next open step on any path.
+    const open = (b) => b.steps.find((s) => !isReward(s.kind) && s.state === "open");
     const next =
-      trail?.branches.find((b) => b.steps[0].state === "open") ??
-      trail?.branches.find((b) => b.steps[1].state === "open");
-    if (!next) return openOnboarding();
-    openOnboarding({ id: next.id, mode: next.steps[0].state === "open" ? "lesson" : "practice" });
+      trail?.branches.find((b) => b.steps[0].state === "open") ?? trail?.branches.find((b) => open(b));
+    if (!next) return pickMoreLessons();
+    playStep(next.id, open(next));
+  }
+
+  // Open one step of a lesson's path (lesson, writing, listening, …).
+  function playStep(id, step) {
+    openOnboarding({ id, mode: step.mode, variant: step.variant ?? null, step: step.index });
   }
 
   function saveStreakFromHome() {
@@ -212,8 +221,10 @@ function Root() {
     return (
       <App
         // Remount per course and per launch so saved answers reload for that course.
-        key={`${courseId}-${launch ? `${launch.id}-${launch.mode}` : nav.rescue ? "rescue" : "onboarding"}`}
+        key={`${courseId}-${launch ? `${launch.id}-${launch.step ?? launch.mode}` : nav.rescue ? "rescue" : "onboarding"}`}
         startLesson={launch?.id ?? null}
+        startMode={launch?.mode ?? "lesson"}
+        startVariant={launch?.variant ?? null}
         openStreak={nav.rescue ? "rescue" : null}
         onBack={back}
         onLessonsDone={backToTrail}
@@ -267,7 +278,11 @@ function Root() {
               facts={factsFor()}
               factPlace={getCountry(factCountry())?.name}
               showToast={showToast}
-              onPlay={(id, mode) => openOnboarding({ id, mode })}
+              onPlay={playStep}
+              onOpenReward={(id, index) => {
+                markStep(id, index);
+                redraw((n) => n + 1);
+              }}
               onPickMore={pickMoreLessons}
             />
           ) : (

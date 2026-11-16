@@ -2,7 +2,10 @@ import { useMemo } from "react";
 import { BackArrow, CheckIcon, DuoOwl } from "./Icons.jsx";
 import TripMap from "./TripMap.jsx";
 import { course, courseKey } from "./courses.js";
+import { loadCompleted } from "./lessonContent.js";
 import { LESSONS, MAX_LESSONS, lessonSample, suggestedLessons } from "./lessons.js";
+import { PATH } from "./practice.js";
+import { stepsDone } from "./trail.js";
 import { REASONS } from "./reasons.js";
 import { PRESSABLE } from "./styles.js";
 
@@ -118,13 +121,15 @@ export default function OnboardingQuestions({ draft, onDraft, step: rawStep, onS
   const current = steps[step];
 
   const suggested = useMemo(() => suggestedLessons(reasons), [reasons]);
-  const lessonList = useMemo(
-    () => [
+  // Lessons already finished (in this language) are marked and listed last.
+  const completed = useMemo(() => loadCompleted(), []);
+  const lessonList = useMemo(() => {
+    const ordered = [
       ...suggested.map((id) => LESSONS.find((l) => l.id === id)),
       ...LESSONS.filter((l) => !suggested.includes(l.id)),
-    ],
-    [suggested],
-  );
+    ];
+    return [...ordered.filter((l) => !completed.includes(l.id)), ...ordered.filter((l) => completed.includes(l.id))];
+  }, [suggested, completed]);
 
   const days = date ? daysUntil(date) : null;
 
@@ -349,6 +354,12 @@ export default function OnboardingQuestions({ draft, onDraft, step: rawStep, onS
             <p className="mb-3 text-[15px] font-bold text-fog">
               Pick up to {MAX_LESSONS}. Each one becomes a path on your home screen.
             </p>
+            {completed.length > 0 && (
+              <p className="mb-3 rounded-xl bg-owl/10 px-3 py-2 text-[14px] font-bold text-snow">
+                ✓ You've finished {completed.length} {completed.length === 1 ? "lesson" : "lessons"}. They're
+                marked below. Pick new ones to keep growing, or one you finished to keep practicing it.
+              </p>
+            )}
             <ul className="flex flex-col gap-2.5" aria-label={QUESTIONS.first}>
               {lessonList.map((l) => {
                 const pos = lessons.indexOf(l.id);
@@ -368,10 +379,16 @@ export default function OnboardingQuestions({ draft, onDraft, step: rawStep, onS
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-x-2">
                           <span className={optionText(selected)}>{l.label}</span>
-                          {suggested.includes(l.id) && (
-                            <span className="rounded-md bg-grape/20 px-1.5 py-0.5 text-[11px] font-black tracking-[0.06em] text-grape">
-                              {traveling && suggestedLessons(["travel"]).includes(l.id) ? "FOR YOUR TRIP" : "FOR YOU"}
+                          {completed.includes(l.id) ? (
+                            <span className="rounded-md bg-owl/15 px-1.5 py-0.5 text-[11px] font-black tracking-[0.06em] text-owl-dark">
+                              ✓ COMPLETED · {stepsDone(l.id)}/{PATH.length} STEPS
                             </span>
+                          ) : (
+                            suggested.includes(l.id) && (
+                              <span className="rounded-md bg-grape/20 px-1.5 py-0.5 text-[11px] font-black tracking-[0.06em] text-grape">
+                                {traveling && suggestedLessons(["travel"]).includes(l.id) ? "FOR YOUR TRIP" : "FOR YOU"}
+                              </span>
+                            )
                           )}
                         </span>
                         <span className="block text-[14px] font-bold italic text-fog">“{lessonSample(l.id)}”</span>

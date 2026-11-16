@@ -34,9 +34,29 @@ automatically by `.github/workflows/deploy-pages.yml` on every push to `main`.
 3. On the **homepage trail**
    (`src/BranchTrail.jsx`, inside `../traveler-mode`'s homepage). It splits into
    **one path per lesson you picked**, so you choose where to go next:
-   - each path is **Lesson → Practice → Reward chest**; every path's lesson is open
-     from the start (with a **START** bubble), Practice unlocks after the lesson,
-     and the chest opens after practice;
+   - each path is **20 steps in 4 levels** (`PATH` in `src/practice.js`), getting
+     more advanced as you go:
+     - **Level 1 · Basics:** ⭐ Lesson → ✏️ Writing (words) → 📘 Grammar → 🎤 Speaking (words) → 🎁
+     - **Level 2 · Sentences:** 👂 Listening (hear it, pick the meaning) → ✏️ Writing (sentences) → 🧩 Build sentences → 🎤 Speaking (sentences) → 🎁
+     - **Level 3 · Listen & review:** 🔁 Review → 👂 Type what you hear → 💬 What does it mean? → 📘 Grammar again → 🎁
+     - **Level 4 · Mastery:** ✏️ Writing (no hints) → 🎤 Speaking → ⚡ Challenge (mixed) → 🏆 Final check → 🏆 Trophy
+
+     Every path's lesson is open from the start; each later step unlocks when the
+     one before it is done (chests open with a tap), a bubble names the step you're
+     on, and the path banner shows "3/20". All steps are built from the lesson's
+     own words and sentences:
+     - **Writing:** type words, then short sentences. Accent keys, a two-level
+       hint (first letters, then the whole answer) and forgiving checks (missing
+       accents or a small typo still pass, with a note). Japanese accepts rōmaji
+       (`src/kana.js`).
+     - **Grammar:** a short tip (el/la, le/la, il/la, der/die/das, Japanese
+       particles, or word order for topics without articles), then pick the
+       right word and put sentences in order.
+     - **Speaking:** listen (normal or 🐢 slower), then say it into the mic (the
+       browser's speech recognition), or say it out loud and tap "I said it"
+       when there's no mic. It never marks you wrong; a miss just asks for
+       another try. **🔇 Can't speak right now** swaps every speaking question
+       left in that practice for "type what you hear".
    - the paths rejoin at the bottom, where **Pick more lessons** unlocks once every
      path's lesson is done.
    Progress per path is saved per language (`src/trail.js`).
@@ -69,7 +89,8 @@ automatically by `.github/workflows/deploy-pages.yml` on every push to `main`.
 panel at the bottom of the homepage). That panel also has **Skip to tomorrow ⏭**
 to try the streak features without waiting a day. Switching to a language that
 isn't set up yet shows a **Set up** card instead of an empty path, and **Pick more
-lessons** goes straight back to "What do you want to learn first?".
+lessons** goes straight back to "What do you want to learn first?", where lessons
+you've finished are marked **✓ Completed · n/20 steps** and listed last.
 
 **Going back:** every screen (and every question) is a browser history entry, so
 the back arrow on each screen, including the homepage, and the phone or browser
