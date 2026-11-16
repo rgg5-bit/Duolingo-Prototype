@@ -64,6 +64,13 @@ automatically by `.github/workflows/deploy-pages.yml` on every push to `main`.
   **Another fact →**. Like the speaker numbers, have someone verify them before
   presenting.
 
+**For user testing:** progress is saved in the browser, so between testers use
+**Start over ↺** (top right of the first screen, or the dashed **🧪 For testers**
+panel at the bottom of the homepage). That panel also has **Skip to tomorrow ⏭**
+to try the streak features without waiting a day. Switching to a language that
+isn't set up yet shows a **Set up** card instead of an empty path, and **Pick more
+lessons** goes straight back to "What do you want to learn first?".
+
 **Going back:** every screen (and every question) is a browser history entry, so
 the back arrow on each screen, including the homepage, and the phone or browser
 back gesture both return to the screen you were just on. Answers to the questions

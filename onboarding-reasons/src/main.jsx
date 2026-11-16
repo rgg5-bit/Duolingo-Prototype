@@ -5,14 +5,15 @@ import { DESTINATIONS, loadCourse, loadTrip, saveCourse, saveTrip } from "../../
 import App from "./App.jsx";
 import BranchTrail from "./BranchTrail.jsx";
 import CoursePicker from "./CoursePicker.jsx";
-import { setCourse } from "./courses.js";
+import { course, setCourse } from "./courses.js";
+import { SetupCard, TesterTools, startOver } from "./HomeExtras.jsx";
 import { factCountry, factsFor } from "./facts.js";
 import { getCountry } from "./speakers.js";
 import HomeStreak from "./HomeStreak.jsx";
 import { loadLessons, saveLessons } from "./lessons.js";
 import OnboardingQuestions, { EMPTY_DRAFT, daysUntil, loadLevel, saveLevel, todayIso } from "./OnboardingQuestions.jsx";
 import { loadSelection, saveSelection } from "./reasons.js";
-import { evaluate, loadStreak, saveStreak } from "./streak.js";
+import { evaluate, loadStreak, nextDay, saveStreak } from "./streak.js";
 import { StreakLost, StreakOnHold } from "./StreakScreens.jsx";
 import { buildTrail, markPracticed } from "./trail.js";
 import TravelerGuide from "./TravelerGuide.jsx";
@@ -47,13 +48,15 @@ function saveAnswers({ reasons, trip, level, lessons }) {
 }
 
 // Rebuild the question answers from what's saved (e.g. to jump to "When is your trip?").
-function draftFromSaved() {
+// addTravel: tick Travel even if it wasn't picked (for "Add travel date").
+function draftFromSaved({ addTravel = true } = {}) {
   const trip = loadTrip();
-  const reasons = loadSelection()?.ids ?? [];
+  let reasons = loadSelection()?.ids ?? [];
+  if (trip && !reasons.includes("travel")) reasons = [...reasons, "travel"];
   const dest = trip && DESTINATIONS.find((d) => d.id === trip.destination);
   return {
     ...EMPTY_DRAFT,
-    reasons: reasons.includes("travel") ? reasons : [...reasons, "travel"],
+    reasons: addTravel && !reasons.includes("travel") ? [...reasons, "travel"] : reasons,
     destination: trip?.destination ?? null,
     destCity: trip?.city ?? dest?.city ?? "",
     destCountry: trip?.country ?? dest?.country ?? "",
@@ -153,6 +156,24 @@ function Root() {
     go({ screen: "onboarding", rescue: true });
   }
 
+  // "Pick more lessons" at the end of the trail: straight to "What do you want to
+  // learn first?" with the other answers kept, then back to a fresh trail.
+  function pickMoreLessons() {
+    const saved = draftFromSaved({ addTravel: false });
+    setDraft({ ...saved, lessons: [] });
+    const lastStep = saved.reasons.includes("travel") ? 5 : 2;
+    go({ screen: "questions", step: lastStep });
+  }
+
+  // Tester tool: jump to tomorrow (missing a day if there was no lesson today).
+  function skipDay() {
+    const { state, event } = nextDay(loadStreak());
+    saveStreak(state);
+    if (event?.type === "hold") setStreakAlert("hold");
+    else if (event?.type === "lost" || event?.type === "expired") setStreakAlert(event);
+    redraw((n) => n + 1);
+  }
+
   if (screen === "courses") {
     return (
       <CoursePicker
@@ -161,9 +182,11 @@ function Root() {
           chooseCourse(id);
           go({ screen: "questions", step: 0 });
         }}
-        // First screen: back is shown only if there's somewhere to go back to.
+        // First screen: back is shown only if there's somewhere to go back to, and
+        // the ✕ only once this language is set up (otherwise home is a dead end).
         onBack={nav.depth > 0 ? back : undefined}
-        onClose={() => go({ screen: "home" })}
+        onClose={buildTrail() ? () => go({ screen: "home" }) : undefined}
+        onStartOver={hasChosen ? startOver : undefined}
       />
     );
   }
@@ -228,20 +251,38 @@ function Root() {
           />
         )
       }
-      renderPath={
+      unit={
         trail
-          ? ({ showToast }) => (
-              <BranchTrail
-                trail={trail}
-                facts={factsFor()}
-                factPlace={getCountry(factCountry())?.name}
-                showToast={showToast}
-                onPlay={(id, mode) => openOnboarding({ id, mode })}
-                onPickMore={() => openOnboarding()}
-              />
-            )
-          : undefined
+          ? {
+              section: `YOUR LESSONS · ${course().name.toUpperCase()}`,
+              title: trail.branches.map((b) => b.lesson.label).join(" · "),
+            }
+          : { section: course().name.toUpperCase(), title: "Let's set up your lessons" }
       }
+      renderPath={({ showToast }) => (
+        <>
+          {trail ? (
+            <BranchTrail
+              trail={trail}
+              facts={factsFor()}
+              factPlace={getCountry(factCountry())?.name}
+              showToast={showToast}
+              onPlay={(id, mode) => openOnboarding({ id, mode })}
+              onPickMore={pickMoreLessons}
+            />
+          ) : (
+            // This language isn't set up yet (e.g. switched with the flag menu).
+            <SetupCard
+              langName={course().name}
+              onSetUp={() => {
+                setDraft(EMPTY_DRAFT);
+                go({ screen: "questions", step: 0 });
+              }}
+            />
+          )}
+          <TesterTools streak={streak} onSkipDay={skipDay} onStartOver={startOver} />
+        </>
+      )}
       onBack={back}
       onOpenGuide={() => go({ screen: "guide" })}
       onCourseChange={chooseCourse}

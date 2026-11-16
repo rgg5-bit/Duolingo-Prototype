@@ -228,7 +228,9 @@ function PathNode({ node }) {
 // replaces the sample "0" streak; travelSlot shows above the unit banner while
 // Traveler mode is on (the trip countdown); onOpenGuide opens the "Prep like a
 // local" traveler guide from the unit banner's guidebook button.
-export default function Home({ onStartOnboarding, renderPath, onCourseChange, onBack, streakSlot, travelSlot, onOpenGuide }) {
+// unit: the banner text outside Traveler mode ({ section, title }), so it names
+// the user's own lessons instead of the sample "Talk about your family".
+export default function Home({ onStartOnboarding, renderPath, onCourseChange, onBack, streakSlot, travelSlot, onOpenGuide, unit: ownUnit }) {
   const [courseId, setCourseId] = useState(loadCourse);
   const [trip, setTrip] = useState(loadTrip);
   const [onboarding, setOnboarding] = useState(false);
@@ -242,7 +244,7 @@ export default function Home({ onStartOnboarding, renderPath, onCourseChange, on
   const mainRef = useRef(null);
 
   const travelMode = trip !== null;
-  const unit = travelMode ? travelUnit(trip) : STANDARD_UNIT;
+  const unit = travelMode ? travelUnit(trip) : ownUnit ?? STANDARD_UNIT;
   const course = COURSES.find((c) => c.id === courseId);
 
   function showToast(message) {

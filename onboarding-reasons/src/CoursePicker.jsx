@@ -188,7 +188,7 @@ function Chevron({ open }) {
 }
 
 // "What would you like to learn?": the first screen of the combined app.
-export default function CoursePicker({ initial, onContinue, onBack, onClose }) {
+export default function CoursePicker({ initial, onContinue, onBack, onClose, onStartOver }) {
   const [picked, setPicked] = useState(available(initial) ? initial : null);
   const [open, setOpen] = useState({ new: true, languages: true });
   const [toast, setToast] = useState(null);
@@ -224,6 +224,16 @@ export default function CoursePicker({ initial, onContinue, onBack, onClose }) {
             className="-ml-1 rounded-xl p-1.5 text-fog outline-none hover:text-snow focus-visible:ring-4 focus-visible:ring-sky/40"
           >
             <CloseIcon className="h-7 w-7" />
+          </button>
+        )}
+        {/* For user testing: clear the last tester's answers and progress. */}
+        {onStartOver && (
+          <button
+            type="button"
+            onClick={onStartOver}
+            className="ml-auto rounded-xl px-2 py-1.5 text-[13px] font-extrabold uppercase tracking-wide text-fog outline-none hover:text-snow focus-visible:ring-4 focus-visible:ring-sky/40"
+          >
+            Start over ↺
           </button>
         )}
       </header>

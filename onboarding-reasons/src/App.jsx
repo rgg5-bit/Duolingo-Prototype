@@ -461,7 +461,9 @@ export default function App({ onBack, startLesson = null, onLessonsDone, openStr
         })}
       </section>
 
-      {/* Prototype-only controls for testing the streak without waiting days */}
+      {/* Prototype-only controls for testing the streak without waiting days.
+          The combined app has its own "For testers" panel on the homepage. */}
+      {!onLessonsDone && (
       <section
         aria-label="Demo controls"
         className="mt-8 rounded-2xl border-2 border-dashed border-line px-4 py-3"
@@ -503,6 +505,7 @@ export default function App({ onBack, startLesson = null, onLessonsDone, openStr
           </button>
         </div>
       </section>
+      )}
 
       {lessonsOpen && (
         <LessonsSheet
