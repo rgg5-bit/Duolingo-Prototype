@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ChestIcon, LockIcon, StarIcon } from "../../traveler-mode/src/Icons.jsx";
+import { LockIcon, StarIcon } from "../../traveler-mode/src/Icons.jsx";
+import Chest3D from "./Chest3D.jsx";
 import { LEVELS, isReward } from "./practice.js";
 
 // Homepage trail that splits into one path per picked lesson (see trail.js),
@@ -64,17 +65,17 @@ function StepNode({ step, lesson, current, onClick }) {
 
   if (kind === "chest") {
     return (
-      <span className="relative">
+      <span className="relative block">
         {current && <Bubble>Open me!</Bubble>}
         <button
           type="button"
           onClick={onClick}
           aria-label={label}
-          className={`rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-macaw/30 ${
-            state === "open" ? "animate-bob" : state === "locked" ? "opacity-60" : ""
+          className={`rounded-xl outline-none transition-transform hover:scale-105 active:scale-95 focus-visible:ring-4 focus-visible:ring-macaw/30 ${
+            state === "open" ? "animate-bob" : ""
           }`}
         >
-          <ChestIcon className="h-[58px] w-[66px]" />
+          <Chest3D state={state} className="block h-[70px] w-[74px]" />
         </button>
       </span>
     );

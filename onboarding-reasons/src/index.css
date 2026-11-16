@@ -98,6 +98,18 @@ body.light-page {
 }
 .animate-shake { animation: shake 360ms ease-in-out both; }
 
+/* 3D chest on the homepage path (Chest3D.jsx) */
+@keyframes chest-twinkle {
+  0%, 100% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes chest-glow {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.chest-twinkle { animation: chest-twinkle 1.6s ease-in-out infinite; }
+.chest-glow { animation: chest-glow 1.8s ease-in-out infinite; }
+
 @keyframes confetti-fall {
   0% { transform: translateY(0) rotate(0deg); opacity: 1; }
   100% { transform: translateY(105vh) rotate(540deg); opacity: 0.6; }
@@ -145,5 +157,9 @@ body.light-page {
   }
   .confetti {
     display: none;
+  }
+  .chest-twinkle,
+  .chest-glow {
+    animation: none;
   }
 }
