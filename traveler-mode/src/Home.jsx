@@ -67,13 +67,14 @@ function Flag({ course, className = "" }) {
   );
 }
 
-function TravelModeButton({ on, onToggle }) {
+function TravelModeButton({ on, locked, onToggle }) {
+  const label = on ? (locked ? "Traveler mode is on" : "Turn off Traveler mode") : "Switch to Traveler mode";
   return (
     <button
       type="button"
       aria-pressed={on}
-      aria-label={on ? "Turn off Traveler mode" : "Switch to Traveler mode"}
-      title={on ? "Turn off Traveler mode" : "Switch to Traveler mode"}
+      aria-label={label}
+      title={label}
       onClick={onToggle}
       className={`iridescent flex h-10 w-12 items-center justify-center rounded-xl border-2 border-b-4 bg-paper outline-none transition-[transform,color,border-color] duration-150 active:translate-y-[2px] active:border-b-2 focus-visible:ring-4 focus-visible:ring-macaw/30 ${
         on ? "is-on" : "border-swan text-macaw"
@@ -279,6 +280,13 @@ export default function Home({ onStartOnboarding, renderPath, onCourseChange, on
       window.scrollTo(0, 0);
       return;
     }
+    // Combined build: once the onboarding has set up a trip, Traveler mode stays on
+    // (the countdown, guide and trip banner keep showing). Tapping just confirms it.
+    if (onStartOnboarding) {
+      const city = trip.city ?? DESTINATIONS.find((d) => d.id === trip.destination)?.city;
+      showToast(city ? `✈️ Traveler mode is on for ${city}` : "✈️ Traveler mode is on");
+      return;
+    }
     setTrip(null);
     saveTrip(null);
     showToast("Back to your regular course");
@@ -343,7 +351,7 @@ export default function Home({ onStartOnboarding, renderPath, onCourseChange, on
         </div>
 
         <div ref={travelBtnRef}>
-          <TravelModeButton on={travelMode} onToggle={toggleTravel} />
+          <TravelModeButton on={travelMode} locked={Boolean(onStartOnboarding)} onToggle={toggleTravel} />
         </div>
 
         {streakSlot ?? (
