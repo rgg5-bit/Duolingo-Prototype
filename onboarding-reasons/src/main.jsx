@@ -309,11 +309,12 @@ function Root() {
       onOpenGuide={() => go({ screen: "guide" })}
       onCourseChange={chooseCourse}
       onStartOnboarding={(id) => {
-        // The homepage's ✈️ button: go through the questions to set up a trip,
-        // with Travel already ticked.
+        // The homepage's ✈️ button (shown for users who didn't pick Travel): skip
+        // "Why are you learning?" and go straight to "Where are you going?", with
+        // Travel ticked and their other answers (level, lessons) kept.
         chooseCourse(id);
-        setDraft((d) => (d.reasons.includes("travel") ? d : { ...d, reasons: [...d.reasons, "travel"] }));
-        go({ screen: "questions", step: 0 });
+        setDraft(draftFromSaved());
+        go({ screen: "questions", step: 1 });
       }}
     />
     {streakAlert === "hold" && streak.hold && (
